@@ -1,0 +1,380 @@
+/* =============================
+   🎨 ESTILO CREDISENSE - DETALLE DE ESPACIO
+   Paleta oficial:
+   - Verde oscuro: #00482B
+   - Verde medio: #00783E
+   - Verde lima: #79C000
+   - Dorado claro: #FBE122
+   - Dorado oscuro: #DAAA00
+   - Fondo neutro: #F4F4F4
+   Tipografía: Century Gothic
+============================= */
+
+:root {
+    --primary-dark: #00482B;
+    --primary: #00783E;
+    --accent-lime: #79C000;
+    --accent-yellow: #FBE122;
+    --accent-gold: #DAAA00;
+    --light-bg: #F4F4F4;
+    --card-bg: #ffffff;
+    --text: #1a202c;
+    --text-secondary: #4a5568;
+    --nav-bg: #00482B;
+    --footer-bg: #00482B;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* ================= HEADER ================= */
+.header {
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 72, 43, 0.25);
+}
+
+.brand-name {
+    color: var(--accent-yellow);
+    font-weight: 900;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 0 8px rgba(121, 192, 0, 0.4);
+}
+
+.user-name {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ================= IMAGEN PRINCIPAL ================= */
+.space-image-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(0, 72, 43, 0.05), rgba(121, 192, 0, 0.05));
+    padding: 1.5rem 0;
+}
+
+.space-image {
+    width: 500%;
+    height: 400px;
+    border-radius: 1rem;
+    box-shadow: 0 6px 20px rgba(0, 120, 62, 0.2);
+    border: 3px solid rgba(121, 192, 0, 0.15);
+}
+
+/* ================= BARRA DE INFORMACIÓN ================= */
+.space-info-bar {
+    background: linear-gradient(90deg, var(--accent-yellow), var(--accent-gold));
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 900;
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0, 72, 43, 0.15);
+}
+
+/* ================= CONTENIDO PRINCIPAL ================= */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+/* ================= COLUMNA IZQUIERDA ================= */
+.left-column {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 120, 62, 0.1);
+    border-left: 6px solid var(--primary);
+}
+
+.space-icons {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.icon-item i {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.icon-label {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 700;
+}
+
+/* ================= TABS ================= */
+.tabs {
+    display: flex;
+    border-bottom: 3px solid rgba(0, 72, 43, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.tab {
+    padding: 0.8rem 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+}
+
+.tab.active {
+    border-bottom: 3px solid var(--accent-lime);
+    color: var(--primary);
+}
+
+.tab:hover {
+    color: var(--accent-lime);
+}
+
+.tab-content {
+    padding: 1.5rem 0;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* ================= CHECKLIST ================= */
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    border-radius: 0.6rem;
+    transition: background 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+
+.check-item:hover {
+    background: rgba(0, 120, 62, 0.08);
+}
+
+.check-item:active {
+    transform: scale(0.97);
+}
+
+.check-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1rem;
+    transition: all 0.25s ease;
+}
+
+.check-icon.yes {
+    background: rgba(121, 192, 0, 0.25);
+    color: var(--accent-lime);
+    box-shadow: 0 0 6px rgba(121, 192, 0, 0.4);
+}
+
+.check-icon.no {
+    background: rgba(229, 62, 62, 0.15);
+    color: #e53e3e;
+    box-shadow: none;
+}
+
+.check-item span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Efecto "pulse" al marcar */
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(121,192,0,0.6); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(121,192,0,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(121,192,0,0); }
+}
+
+.check-icon.yes.clicked {
+    animation: pulse 0.4s ease;
+}
+
+/* ================= COLUMNA DERECHA ================= */
+.right-column {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,120,62,0.1);
+    border-top: 4px solid var(--accent-yellow);
+}
+
+.titulo-reserva {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark);
+}
+
+.reserve-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 1px solid rgba(0,72,43,0.25);
+    border-radius: 0.6rem;
+    background: white;
+    font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-lime);
+    box-shadow: 0 0 8px rgba(121,192,0,0.3);
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 900;
+    font-size: 1.2rem;
+    margin: 1.5rem 0 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(0,72,43,0.2);
+    color: var(--primary);
+}
+
+.btn-reserve {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.9rem 1.5rem;
+    border-radius: 0.7rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: 100%;
+}
+
+.btn-reserve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,120,62,0.3);
+    background: linear-gradient(135deg, var(--primary-dark), var(--accent-lime));
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background: #4a4a4a; /* gris neutro profesional */
+    color: #ffffff; /* texto blanco */
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+    font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Línea superior decorativa con el dorado institucional */
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(90deg, #FBE122, #DAAA00);
+    box-shadow: 0 0 8px rgba(251, 225, 34, 0.4);
+}
+
+/* Efecto sutil al pasar el mouse */
+.footer:hover {
+    background: #3b3b3b; /* un gris más oscuro */
+    transition: background 0.4s ease;
+}

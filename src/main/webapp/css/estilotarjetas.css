@@ -1,0 +1,553 @@
+
+/* === SECCIÓN DE ESPACIOS === */
+.espacios-section {
+  padding: 80px 0;
+  background: #ffffff;
+  color: #333;
+  font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+}
+
+/* === TÍTULO PRINCIPAL === */
+.titulo-espacios {
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+/* Parte normal (negro) */
+.titulo-normal {
+  color: #000000;
+}
+
+/* Parte resaltada (verde institucional, estilo del logo) */
+.titulo-resaltado {
+  color: white; /* Pantone 5536 C */
+  background-color: #79C000; /* Pantone 3561 C */
+  padding: 0.2rem 0.8rem;
+  border-radius: 5px;
+  display: inline-block;
+  font-weight: 700;
+}
+
+/* === SUBTÍTULO === */
+.subtitulo-espacios {
+  font-size: 1.1rem;
+  color: #00482B; /* Verde profundo Pantone 3537 C */
+  letter-spacing: 8px;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 25px;
+}
+
+/* === DESCRIPCIÓN === */
+.descripcion-espacios {
+  max-width: 1600px;
+  margin: 0 auto;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+  text-align: justify;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+/* === DETALLE DECORATIVO (opcional) === */
+.titulo-espacios::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #00783E, #79C000);
+  margin: 15px auto 0;
+  border-radius: 2px;
+}
+
+/* === FUENTE GLOBAL === */
+body, .space-card {
+  font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+  background-color: #f7f7f7;
+  color: #222;
+}
+
+/* === TARJETA PRINCIPAL === */
+.space-card {
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.space-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* === IMAGEN === */
+.space-img-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+.space-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* === INSIGNIAS === */
+.availability-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  font-family: "Century Gothic", sans-serif;
+}
+.available {
+  background: linear-gradient(90deg, #00783E, #79C000);
+}
+.unavailable {
+  background: linear-gradient(90deg, #7e7e7e, #b0b0b0);
+}
+
+.location-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 72, 43, 0.8);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+}
+
+/* === CONTENIDO === */
+.space-content {
+  padding: 1.2rem;
+}
+.space-title {
+  font-size: 1.0rem;
+  font-weight: bold;
+  color: #00482B;
+  font-family: "Century Gothic", sans-serif;
+}
+.space-description {
+  font-size: 0.8rem;
+  color: #444;
+  margin-bottom: 10px;
+  height: 55px;
+  overflow: hidden;
+}
+
+/* === INFO CAPACIDAD Y TARIFA === */
+.space-info {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.info-box {
+  color: #00783E;
+  font-weight: 600;
+  font-family: "Century Gothic", sans-serif;
+  font-size: 14px;
+}
+.info-icon {
+  margin-right: 4px;
+}
+
+/* === VALORACIÓN === */
+.space-rating {
+  margin-bottom: 10px;
+  text-align: left;
+  font-family: "Century Gothic", sans-serif;
+}
+.stars {
+  color: #FBE122;
+}
+.rating-value {
+  color: #00482B;
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+/* === BOTONES === */
+.reserve-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 2px;
+  font-family: "Century Gothic", sans-serif;
+  font-size: 12px;
+}
+
+/* 🔹 Botón verde (Reservar) */
+.reserve-btn:not(.disabled) {
+  background: linear-gradient(90deg, #00783E, #79C000);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 120, 62, 0.25);
+}
+.reserve-btn:not(.disabled):hover {
+  background: linear-gradient(90deg, #00482B, #00783E);
+  transform: scale(1.03);
+}
+
+/* 🟡 Botón amarillo (Testimonio) */
+.reserve-btn + .reserve-btn {
+  background: linear-gradient(90deg, #FBE122, #DAAA00);
+  color: #3d3d3d;
+}
+.reserve-btn + .reserve-btn:hover {
+  background: linear-gradient(90deg, #F7931E, #DAAA00);
+  transform: scale(1.03);
+}
+
+/* ⚫ Botón gris (No Disponible) */
+.reserve-btn.disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* === EFECTO DISPONIBLE === */
+.available::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid #79C000;
+  border-radius: 15px;
+  pointer-events: none;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(121, 192, 0, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(121, 192, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(121, 192, 0, 0); }
+}
+/* =============================
+   🌟 SECCIÓN DE TESTIMONIOS (versión fondo blanco)
+   - Fondo blanco, limpio y profesional
+   - Tipografía Century Gothic
+   - Acentos en verde y dorado de la paleta institucional
+============================= */
+
+.testimonios-section {
+  background: #ffffff; /* Fondo blanco */
+  color: #333333;
+  padding: 80px 0;
+  text-align: center;
+  font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+}
+
+/* === TÍTULO PRINCIPAL === */
+.titulo-testimonios {
+  font-size: 2.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  color: #00482B; /* Verde oscuro institucional */
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(90deg, #00783E 0%, #79C000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Línea decorativa inferior del título */
+.titulo-testimonios::after {
+  content: "";
+  display: block;
+  width: 500px;
+  height: 4px;
+  margin: 12px auto 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #FBE122, #DAAA00);
+}
+
+/* === DESCRIPCIÓN === */
+.descripcion-testimonios {
+  max-width: 1600px;
+  margin: 0 auto;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+  text-align: justify;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 768px) {
+  .titulo-testimonios {
+    font-size: 1.9rem;
+  }
+  .descripcion-testimonios {
+    font-size: 0.95rem;
+  }
+}
+/* =============================
+   💬 TESTIMONIOS
+   - Diseño compacto, elegante y autoajustable
+   - Línea lateral institucional
+   - Comillas altas y decorativas
+   - Huellitas animadas
+   - Carrusel automático con puntos institucionales
+============================= */
+
+.testimonios-slider-wrapper {
+  background: #f4f4f4;
+  padding: 15px 0;
+  font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.testimonios-container {
+  max-width: 1050px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+/* === TRACK (CARRIL DE TARJETAS) === */
+.testimonios-track {
+  display: flex;
+  gap: 25px;
+  transition: transform 0.6s ease-in-out;
+  will-change: transform;
+  align-items: stretch;
+}
+
+/* === TARJETA === */
+.testimonio-card {
+  flex: 0 0 280px; /* tamaño compacto */
+  background: #ffffff;
+  border-radius: 18px;
+  border: 2px solid rgba(0, 120, 62, 0.25);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+  position: relative;
+  padding: 35px 25px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  height: auto;
+  min-height: 200px;
+}
+
+/* === LÍNEA IZQUIERDA INSTITUCIONAL === */
+.testimonio-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 100%;
+  background: linear-gradient(180deg, #00783E, #79C000, #FBE122);
+  border-bottom-left-radius: 18px;
+  opacity: 0.85;
+  box-shadow: 0 0 10px rgba(121, 192, 0, 0.25);
+}
+
+/* === COMILLAS DECORATIVAS === */
+.testimonio-body::before {
+  content: "“";
+  position: absolute;
+  top: -40px;
+  left: 0;
+  font-size: 5.8rem;
+  color: rgba(0, 72, 43, 0.1);
+  font-weight: bold;
+  line-height: 1;
+  z-index: 0;
+  transition: transform 0.4s ease, color 0.4s ease;
+}
+
+/* === CONTENIDO DEL TESTIMONIO === */
+.testimonio-body {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 18px;
+  padding-left: 10px;
+}
+
+.testimonio-text {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #333;
+  line-height: 1.6;
+  margin-top: 25px;
+  position: relative;
+  z-index: 2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* === PIE DEL TESTIMONIO === */
+.testimonio-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #00482B;
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+}
+
+/* === HUELLITAS GRANDES Y ANIMADAS === */
+.testimonio-footer::before {
+  content: "🐾";
+  font-size: 1.6rem;
+  color: #79C000;
+  transition: color 0.6s ease, transform 0.4s ease;
+}
+
+/* === NOMBRE CON DEGRADADO DORADO === */
+.testimonio-footer small {
+  background: linear-gradient(90deg, #FBE122, #DAAA00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* === EFECTOS HOVER === */
+.testimonio-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 120, 62, 0.35);
+  box-shadow: 0 15px 30px rgba(0, 120, 62, 0.25);
+}
+
+.testimonio-card:hover .testimonio-body::before {
+  transform: translateY(-5px) scale(1.05);
+  color: rgba(121, 192, 0, 0.25);
+}
+
+.testimonio-card:hover .testimonio-footer::before {
+  color: #DAAA00;
+  transform: rotate(-8deg) scale(1.2);
+}
+
+/* === INDICADORES (PUNTOS DE CONTROL) === */
+.slider-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+  gap: 10px;
+}
+
+.slider-indicators .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(0, 120, 62, 0.3);
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.slider-indicators .dot.active {
+  background: linear-gradient(90deg, #00783E, #79C000, #FBE122);
+  box-shadow: 0 0 8px rgba(121, 192, 0, 0.5);
+  transform: scale(1.2);
+}
+
+/* === ANIMACIÓN DE ENTRADA === */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.testimonio-card {
+  animation: fadeInUp 0.8s ease forwards;
+}
+.testimonio-card:nth-child(2) { animation-delay: 0.15s; }
+.testimonio-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* === RESPONSIVO === */
+@media (max-width: 768px) {
+  .testimonios-track {
+    flex-direction: row;
+    gap: 15px;
+  }
+  .testimonio-card {
+    flex: 0 0 90%;
+  }
+}
+
+/* =============================
+   ⚙️ FOOTER 
+   - Paleta institucional
+   - Tipografía Century Gothic
+   - Efecto de brillo superior
+   - Diseño limpio y elegante
+============================= */
+
+.footer-cred {
+  background: linear-gradient(90deg, #00482B, #00783E, #79C000);
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+  font-family: "Century Gothic", "Gill Sans MT", Calibri, sans-serif;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* 💡 Línea dorada brillante superior */
+.footer-cred::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #FBE122, #DAAA00);
+  box-shadow: 0 0 8px rgba(251, 225, 34, 0.4);
+}
+
+/* ✨ Texto */
+.footer-cred p {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+/* 🌟 Efecto sutil al pasar el mouse */
+.footer-cred:hover {
+  background: linear-gradient(90deg, #00783E, #79C000, #FBE122);
+  transition: all 0.6s ease;
+}
+
+/* 💫 Responsivo */
+@media (max-width: 768px) {
+  .footer-cred {
+    font-size: 0.85rem;
+    padding: 20px 10px;
+  }
+}
+.reserve-btn.disabled {
+  background-color: #999;
+  color: #eee;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+  text-decoration: none;
+}

@@ -1,0 +1,119 @@
+:root {
+  --verde-oscuro: #00482B;
+  --verde-medio: #007B3E;
+  --verde-brillante: #79C000;
+  --amarillo: #FBE122;
+  --dorado: #DAAA00;
+  --rojo: #D9534F;
+  --fondo: #F5F5F5;
+  --blanco: #FFFFFF;
+  --texto: #333333;
+}
+
+body {
+  font-family: "Century Gothic", CenturyGothic, sans-serif;
+  background-color: var(--fondo);
+  color: var(--texto);
+}
+
+/* === CONTENEDOR GENERAL === */
+.noti-wrapper {
+  max-width: 900px;
+  margin: 20px auto 60px auto;
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* === ENCABEZADO === */
+.noti-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+}
+
+.noti-header h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  font-size: 1.8rem;
+  letter-spacing: 0.2px;
+}
+
+.btn-n-markall {
+  background: linear-gradient(90deg, var(--amarillo), var(--dorado));
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+  transition: 0.3s;
+}
+.btn-n-markall:hover {
+  background: var(--dorado);
+  color: #fff;
+}
+
+/* === TARJETAS === */
+.noti-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  border-left: 8px solid var(--verde-medio);
+  margin-bottom: 14px;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.noti-icon {
+  font-size: 1.6rem;
+  min-width: 28px;
+  text-align: center;
+}
+.noti-text {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--texto);
+  font-weight: 500;
+}
+
+/* === TIPOS === */
+.noti-card.ok { border-left-color: var(--verde-medio); }
+.noti-card.aviso { border-left-color: var(--amarillo); }
+.noti-card.error { border-left-color: var(--rojo); }
+
+/* === BOTONES === */
+.btn-n-read {
+  background: var(--verde-brillante);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-n-read:hover {
+  background: var(--verde-medio);
+}
+
+/* === VACÍO === */
+.noti-empty {
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  border-left: 6px solid var(--dorado);
+  color: #777;
+}

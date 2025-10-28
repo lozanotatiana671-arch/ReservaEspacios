@@ -1,0 +1,348 @@
+/* === FUENTE GLOBAL === */
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: #f8f9fa;
+}
+
+
+/* === SLIDER: TAMAÑO REDUCIDO === */
+#slider,
+#slider .carousel,
+#slider .carousel-inner {
+    position: relative;
+    overflow: visible !important;
+    margin-top: -20px;
+}
+
+#slider .carousel-item img {
+    height: 400px;               /* 🔹 Altura del slider */
+    object-fit: cover;           /* recorta sin deformar */
+    object-position: center;     /* centra la imagen */
+}
+
+/* === FORMULARIO SUPERPUESTO === */
+.form-overlay {
+    position: absolute;
+    bottom: -60px;               /* cuánto se sale del slider */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #00A99D;   /* color solicitado */
+    border-radius: 12px;
+    padding: 24px 28px;
+    width: 85%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    z-index: 9999;               /* 🔹 siempre por encima del carrusel */
+}
+
+.form-overlay form {
+    width: 100%;
+}
+
+.form-overlay label {
+    color: #fff !important;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-overlay input {
+    height: 40px;
+    text-align: center;
+    font-weight: 700;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+}
+
+/* === BOTÓN DE DISPONIBILIDAD === */
+.btn-disponible {
+    background-color: #79C000 !important;  /* verde solicitado */
+    color: #fff !important;
+    border: none;
+    height: 40px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 0 25px;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-disponible:hover {
+    background-color: #6FB500 !important;
+    transform: scale(1.03);
+}
+
+/* === TITULARES Y SECCIONES === */
+.section-title {
+    margin: 50px 0 30px;
+}
+
+/* === RESPONSIVO (móviles y tablets) === */
+@media (max-width: 768px) {
+    .form-overlay {
+        width: 95%;
+        bottom: -80px;
+        padding: 22px;
+    }
+
+    .form-overlay .col-lg-3,
+    .form-overlay .col-lg-2 {
+        width: 100%;
+    }
+
+    .form-overlay label {
+        text-align: center;
+    }
+
+    #slider .carousel-item img {
+        height: 250px; /* 🔹 más pequeño en móvil */
+    }
+}
+/* 🔹 Contenedor general de la sección de disponibilidad */
+.disponibilidad-container {
+    margin-top: 100px; /* espacio desde el slider */
+    margin-bottom: 60px;
+}
+
+/* ================================
+   🎨 DISEÑO DISPONIBILIDAD (CALENDARIO + CARRUSEL)
+   ================================ */
+
+.disponibilidad-container {
+    margin-top: 300px;   /* espacio entre slider y esta sección */
+    margin-bottom: 60px;
+    margin-right: 20px;
+}
+
+/* 🔹 Fila que contiene calendario y carrusel */
+.disponibilidad-container .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* ================================
+   🗓️ CALENDARIO
+   ================================ */
+.calendario {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 110%;
+    max-width: 600px;      /* limita el ancho del calendario */
+    margin-left: 100px;;
+    margin-right: auto;
+    padding-bottom: 15px;
+    margin-top: -550px;
+    height: 480px;
+}
+
+.calendario-header {
+    background-color: #00482B;  /* verde oscuro */
+    color: #FBE122;             /* dorado */
+    font-weight: 700;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 1.2rem;
+}
+
+.calendario .dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 40px;
+    padding: 20px;
+    width: 600px;
+    height: 400px;
+    align-content: center;
+}
+
+.dia {
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.dia.disponible {
+    background-color: #79C000;  /* verde brillante */
+    color: #fff;
+}
+
+.dia.ocupado {
+    background-color: #DAAA00;  /* amarillo */
+    color: #000;
+}
+
+/* ================================
+   🏢 CARRUSEL DE ESPACIOS
+   ================================ */
+#carruselEspacios {
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+   
+}
+
+#carruselEspacios .carousel-inner {
+    padding: 15px;
+}
+
+#carruselEspacios .card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+#carruselEspacios .card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+
+#carruselEspacios .card-body {
+    background-color: #fff;
+    padding: 20px;
+}
+
+/* ================================
+   📱 RESPONSIVE AJUSTES
+   ================================ */
+@media (min-width: 992px) {
+    .disponibilidad-container .col-lg-6:first-child {
+        display: flex;
+        justify-content: flex-start; /* calendario a la izquierda */
+        padding-left: 40px;
+    }
+
+    .disponibilidad-container .col-lg-6:last-child {
+        display: flex;
+        justify-content: flex-end;   /* carrusel a la derecha */
+        padding-right: 40px;
+    }
+}
+
+@media (max-width: 991px) {
+    .disponibilidad-container .col-lg-6 {
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+
+    #carruselEspacios .card-img-top {
+        height: 200px;
+    }
+/* ================================
+   🧭 ALINEACIÓN VISUAL SIN TOCAR BACKEND
+   ================================ */
+
+/* Contenedor principal de la sección */
+.disponibilidad-container {
+    margin-top: 100px;
+    margin-bottom: 80px;
+}
+
+/* Fila del calendario + carrusel */
+.disponibilidad-container .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;     /* los alinea arriba */
+    justify-content: center;     /* centra el conjunto */
+    gap: 40px;                   /* espacio entre ambos */
+}
+
+/* Calendario a la izquierda */
+.disponibilidad-container .col-lg-6:first-child {
+    display: flex;
+    justify-content: flex-end;   /* empuja hacia la izquierda */
+    align-items: flex-start;
+    padding-right: 40px;
+    margin-top: 0;
+}
+
+/* Carrusel a la derecha */
+.disponibilidad-container .col-lg-6:last-child {
+    display: flex;
+    justify-content: flex-start; /* mantiene el carrusel a la derecha */
+    align-items: flex-start;
+    padding-left: 40px;
+    margin-top: 0;
+}
+
+/* Igualar alturas y tamaños */
+.calendario, 
+#carruselEspacios {
+    min-height: 480px;
+}
+
+.calendario {
+    width: 100%;
+    max-width: 500px;
+    margin-right: auto;
+}
+
+#carruselEspacios {
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+}
+
+/* En pantallas pequeñas (se apilan centrados) */
+@media (max-width: 991px) {
+    .disponibilidad-container .row {
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+    }
+
+    .disponibilidad-container .col-lg-6 {
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+
+    .calendario, #carruselEspacios {
+        max-width: 90%;
+        min-height: auto;
+    }
+}
+/* ================================
+   🧭 ALINEAR CALENDARIO (IZQ) Y CARRUSEL (DER)
+   ================================ */
+
+.container.disponibilidad-container.mt-5 {
+    display: flex;
+    flex-direction: row;         /* los coloca en línea horizontal */
+    justify-content: space-between; /* separa los dos lados */
+    align-items: flex-start;     /* los alinea arriba */
+    flex-wrap: wrap;             /* permite que se apilen en pantallas pequeñas */
+    gap: 40px;                   /* espacio entre calendario y carrusel */
+    margin-top: 80px;            /* espacio desde arriba */
+}
+
+/* Bloque izquierdo */
+.container.disponibilidad-container.mt-5 .col-lg-6.col-md-12.mb-4 {
+    flex: 0 0 45%;               /* ocupa el 45% del ancho */
+    max-width: 480px;
+}
+
+/* Bloque derecho (carrusel) */
+.container.disponibilidad-container.mt-5 .col-lg-6.col-md-12:last-child {
+    flex: 0 0 50%;               /* ocupa el otro lado */
+    max-width: 600px;
+}
+
+/* Ajuste responsive: se apilan centrados en pantallas pequeñas */
+@media (max-width: 991px) {
+    .container.disponibilidad-container.mt-5 {
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+    }
+
+    .container.disponibilidad-container.mt-5 .col-lg-6.col-md-12.mb-4,
+    .container.disponibilidad-container.mt-5 .col-lg-6.col-md-12:last-child {
+        flex: 0 0 90%;
+        max-width: 90%;
+    }
+}
+}

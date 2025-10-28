@@ -1,0 +1,476 @@
+ :root {
+      --verde-oscuro: #00482B;
+      --verde-medio: #007B3E;
+      --verde-brillante: #79C000;
+      --dorado-suave: #DAAA00;
+      --amarillo-brillante: #FBE122;
+    }
+
+    .rf-container {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(145deg, #f9fbf8 0%, #f0f7ed 100%);
+      color: var(--verde-oscuro);
+      padding: 20px 0;
+    }
+
+    .rf-container h2 {
+      font-weight: 600;
+      color: var(--verde-medio);
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 1.7rem;
+    }
+
+    .rf-container h2 i {
+      color: var(--verde-brillante);
+    }
+
+    /* === Sección de Filtros === */
+    .rf-filter-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 4px 14px rgba(0, 72, 43, 0.08);
+      margin-bottom: 1.8rem;
+    }
+
+    .rf-filter-title {
+      font-weight: 600;
+      color: var(--verde-medio);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+    }
+
+    .rf-filter-title i {
+      color: var(--verde-brillante);
+    }
+
+    .rf-filter-section .form-control {
+      border: 1px solid #d5e9d5;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.95rem;
+      background: white;
+      color: var(--verde-oscuro);
+    }
+
+    .rf-filter-section .form-control:focus {
+      border-color: var(--verde-brillante);
+      box-shadow: 0 0 0 2px rgba(121, 192, 0, 0.2);
+      outline: none;
+    }
+
+    .rf-filter-section label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.92rem;
+    }
+
+    /* Botones de filtros */
+    .rf-btn-filtrar {
+      background: linear-gradient(135deg, var(--verde-brillante), var(--amarillo-brillante));
+      color: var(--verde-oscuro);
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rf-btn-filtrar:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    /* === Botones de exportación === */
+    .rf-export-buttons {
+      text-align: right;
+      margin-bottom: 1.8rem;
+    }
+
+    .rf-btn-export {
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 0.6rem;
+    }
+
+    .rf-btn-pdf {
+      background: linear-gradient(135deg, #c53030, #e53e3e);
+      color: white;
+    }
+
+    .rf-btn-excel {
+      background: linear-gradient(135deg, #38a169, #48bb78);
+      color: white;
+    }
+
+    .rf-btn-csv {
+      background: linear-gradient(135deg, #2b6cb0, #4299e1);
+      color: white;
+    }
+
+    /* === Gráficas === */
+    .rf-chart-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 72, 43, 0.08);
+      height: 100%;
+    }
+
+    .rf-chart-section h5 {
+      font-weight: 600;
+      color: var(--verde-medio);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rf-chart-section h5 i {
+      color: var(--verde-brillante);
+      font-size: 1.1rem;
+    }
+
+    .rf-chart-section canvas {
+      width: 100% !important;
+      height: 250px !important;
+    }
+
+    /* === Tabla === */
+    .rf-table-section {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 72, 43, 0.08);
+      padding: 1rem;
+    }
+
+    .rf-table thead th {
+      background: var(--verde-oscuro);
+      color: var(--amarillo-brillante);
+      font-weight: 600;
+      padding: 0.9rem;
+      text-align: center;
+    }
+
+    .rf-table tbody td {
+      padding: 0.8rem;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .rf-table tbody tr:hover {
+      background-color: #f8fdf5;
+    }
+
+    @media (max-width: 768px) {
+      .rf-filter-section .row > [class*="col-"] {
+        margin-bottom: 1rem;
+      }
+      .rf-export-buttons {
+        text-align: center;
+      }
+      .rf-export-buttons .rf-btn-export {
+        margin: 0.3rem 0.2rem;
+        width: 100%;
+      }
+    }
+    .rf-container {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(145deg, #f9fbf8 0%, #f0f7ed 100%);
+      color: var(--verde-oscuro);
+      padding: 20px 0;
+    }
+
+    .rf-container h2 {
+      font-weight: 600;
+      color: var(--verde-medio);
+      margin-bottom: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 1.6rem;
+    }
+
+    .rf-container h2 i {
+      color: var(--verde-brillante);
+    }
+
+    .rf-filter-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 4px 14px rgba(0, 72, 43, 0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .rf-filter-card label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.92rem;
+      display: block;
+    }
+
+    .rf-filter-card .form-control {
+      border: 1px solid #d5e9d5;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.95rem;
+      background: white;
+      color: var(--verde-oscuro);
+    }
+
+    .rf-filter-card .form-control:focus {
+      border-color: var(--verde-brillante);
+      box-shadow: 0 0 0 2px rgba(121, 192, 0, 0.2);
+      outline: none;
+    }
+
+    /* Botones de acción */
+    .rf-btn {
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rf-btn-filtrar {
+      background: linear-gradient(135deg, var(--verde-brillante), var(--amarillo-brillante));
+      color: var(--verde-oscuro);
+    }
+
+    .rf-btn-limpiar {
+      background: linear-gradient(135deg, var(--dorado-suave), var(--amarillo-brillante));
+      color: var(--verde-oscuro);
+    }
+
+    .rf-btn-pdf {
+      background: linear-gradient(135deg, #c53030, #e53e3e);
+      color: white;
+    }
+
+    .rf-btn-excel {
+      background: linear-gradient(135deg, #38a169, #48bb78);
+      color: white;
+    }
+
+    .rf-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .rf-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .rf-chart-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 72, 43, 0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .rf-chart-section h5 {
+      font-weight: 600;
+      color: var(--verde-medio);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rf-chart-section h5 i {
+      color: var(--verde-brillante);
+      font-size: 1.1rem;
+    }
+
+    .rf-chart-section canvas {
+      width: 100% !important;
+      height: 250px !important;
+    }
+
+    @media (max-width: 768px) {
+      .rf-filter-card { padding: 1rem; }
+      .rf-actions { justify-content: center; }
+      .rf-btn { width: 100%; justify-content: center; }
+    }
+    .auf-wrapper {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #f8fcf6 0%, #f0f8ed 100%);
+      color: var(--verde-oscuro);
+      padding-top: 30px;
+    }
+
+    .auf-container {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .auf-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auf-header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: var(--verde-medio);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .auf-header h1 i {
+      color: var(--verde-brillante);
+      font-size: 1.9rem;
+    }
+
+    .auf-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.2rem;
+      box-shadow: 0 8px 24px rgba(0, 72, 43, 0.12);
+      border: 1px solid rgba(121, 192, 0, 0.1);
+    }
+
+    .auf-group {
+      margin-bottom: 1.4rem;
+    }
+
+    .auf-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      color: var(--verde-oscuro);
+      font-size: 0.98rem;
+    }
+
+    .auf-input,
+    .auf-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #cbd8d0;
+      border-radius: 10px;
+      background: white;
+      color: var(--verde-oscuro);
+      font-family: 'Segoe UI', sans-serif;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .auf-input:focus,
+    .auf-select:focus {
+      outline: none;
+      border-color: var(--verde-brillante);
+      box-shadow: 0 0 0 3px rgba(121, 192, 0, 0.25);
+    }
+
+    .auf-select-wrapper {
+      position: relative;
+    }
+
+    .auf-select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      padding-right: 2.8rem;
+    }
+
+    .auf-select-wrapper::after {
+      content: "▼";
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      color: var(--verde-medio);
+      font-size: 0.7rem;
+      pointer-events: none;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .auf-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.8rem;
+    }
+
+    .auf-btn {
+      flex: 1;
+      padding: 0.85rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      font-family: 'Segoe UI', sans-serif;
+      text-decoration: none;
+    }
+
+    .auf-btn-primary {
+      background: linear-gradient(135deg, var(--verde-brillante), var(--amarillo-brillante));
+      color: var(--verde-oscuro);
+    }
+
+    .auf-btn-secondary {
+      background: linear-gradient(135deg, var(--dorado-suave), var(--amarillo-brillante));
+      color: var(--verde-oscuro);
+      text-decoration: none !important;
+    }
+
+    .auf-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (max-width: 576px) {
+      .auf-card {
+        padding: 1.8rem;
+      }
+      .auf-actions {
+        flex-direction: column;
+      }
+      .auf-btn {
+        width: 100%;
+      }
+      .auf-select {
+        padding-right: 2.2rem;
+      }
+      .auf-select-wrapper::after {
+        right: 0.9rem;
+      }
+    }
