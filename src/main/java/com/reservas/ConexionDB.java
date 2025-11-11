@@ -6,16 +6,26 @@ import java.sql.SQLException;
 
 public class ConexionDB {
 
-    private static final String URL = "jdbc:postgresql://dpg-d40b35p5pdvs73fquhng-a.oregon-postgres.render.com:5432/reservas_db_hjqs?sslmode=require";
-    private static final String USER = "reservas_db_hjqs_user";
-    private static final String PASSWORD = "phnQYDnEARNfVIqNMAd230jrP0rJJdEu";
+    // ✅ Datos internos de tu base de datos en Render
+    private static final String URL = "jdbc:postgresql://dpg-d49r5ji4d50c739kiidg-a.internal.render.com:5432/reservas_13r1";
+    private static final String USER = "admin";
+    private static final String PASSWORD = "VtIVAVSd98VQWHsczyGmZtl4WPsUzuyd";
 
     public static Connection getConnection() throws SQLException {
         try {
+            // Cargar el driver JDBC de PostgreSQL
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            throw new SQLException("Error: No se encontró el Driver de PostgreSQL JDBC.", e);
+            throw new SQLException("❌ Error: No se encontró el Driver de PostgreSQL JDBC.", e);
         }
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+
+        // Intentar la conexión
+        try {
+            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("✅ Conexión interna exitosa a Render PostgreSQL");
+            return conn;
+        } catch (SQLException e) {
+            throw new SQLException("❌ Error al conectar con la base de datos en Render: " + e.getMessage(), e);
+        }
     }
 }
