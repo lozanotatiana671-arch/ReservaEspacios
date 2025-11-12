@@ -52,10 +52,9 @@ public class ReservaDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al guardar reserva con rango: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
+    e.printStackTrace();  // 👈 imprime la causa real en consola
+    throw new RuntimeException("Error SQL: " + e.getMessage(), e);
+}
     }
 
     // 🔹 Verificar conflicto de horario
@@ -118,3 +117,4 @@ public class ReservaDAO {
         }
     }
 }
+
