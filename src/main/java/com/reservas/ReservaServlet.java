@@ -91,10 +91,12 @@ public class ReservaServlet extends HttpServlet {
 
                 } catch (NumberFormatException e) {
                     mensaje = "❌ ID de recurso inválido.";
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Error en reserva", e);
-                    mensaje = "❌ Error interno al procesar la reserva.";
-                }
+               } catch (Exception e) {
+    e.printStackTrace(); // 👈 esto imprimirá el error exacto en consola
+    LOGGER.log(Level.SEVERE, "Error en reserva", e);
+    mensaje = "❌ " + e.getMessage();
+}
+
             }
         }
 
@@ -103,3 +105,4 @@ public class ReservaServlet extends HttpServlet {
         request.getRequestDispatcher("detalleEspacio.jsp").forward(request, response);
     }
 }
+
