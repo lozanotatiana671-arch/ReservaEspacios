@@ -8,9 +8,11 @@ public class Testimonio {
     private String estado;
     private String fecha;
     private String titulo;
-    private int recursoId;  // ✅ antes estaba como idRecurso
+    private int recursoId;           // ✅ id del recurso asociado
+    private String recursoNombre;    // ✅ nombre del recurso (nuevo campo)
     private int calificacion;
 
+    // --- Getters y Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -32,8 +34,11 @@ public class Testimonio {
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public int getRecursoId() { return recursoId; }     // ✅ ahora coincide con DAO
+    public int getRecursoId() { return recursoId; }
     public void setRecursoId(int recursoId) { this.recursoId = recursoId; }
+
+    public String getRecursoNombre() { return recursoNombre; }          // ✅ Getter nuevo
+    public void setRecursoNombre(String recursoNombre) { this.recursoNombre = recursoNombre; } // ✅ Setter nuevo
 
     public int getCalificacion() { return calificacion; }
     public void setCalificacion(int calificacion) { this.calificacion = calificacion; }
