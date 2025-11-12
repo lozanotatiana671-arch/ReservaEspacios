@@ -14,8 +14,8 @@ public class TestimonioDAO {
 
             ps.setInt(1, t.getUsuarioId());
             ps.setString(2, t.getMensaje());
-
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("❌ Error al registrar testimonio: " + e.getMessage());
@@ -145,6 +145,7 @@ public class TestimonioDAO {
                      "FROM testimonios t " +
                      "LEFT JOIN recursos r ON t.recurso_id = r.id " +
                      "WHERE t.usuario_id = ? ORDER BY t.fecha DESC";
+
         try (Connection con = ConexionDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -158,3 +159,13 @@ public class TestimonioDAO {
                 t.setEstado(rs.getString("estado"));
                 t.setFecha(rs.getString("fecha"));
                 String nombreRecurso = rs.getString("recursoNombre");
+                t.setRecursoNombre(nombreRecurso);
+                lista.add(t);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+}
