@@ -8,7 +8,7 @@ public class Testimonio {
     private String estado;
     private String fecha;
     private String titulo;
-    private int idRecurso;
+    private int recursoId;  // ✅ antes estaba como idRecurso
     private int calificacion;
 
     public int getId() { return id; }
@@ -32,8 +32,8 @@ public class Testimonio {
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public int getIdRecurso() { return idRecurso; }
-    public void setIdRecurso(int idRecurso) { this.idRecurso = idRecurso; }
+    public int getRecursoId() { return recursoId; }     // ✅ ahora coincide con DAO
+    public void setRecursoId(int recursoId) { this.recursoId = recursoId; }
 
     public int getCalificacion() { return calificacion; }
     public void setCalificacion(int calificacion) { this.calificacion = calificacion; }
