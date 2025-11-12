@@ -25,8 +25,15 @@ public class TestimonioServlet extends HttpServlet {
         String usuarioNombre = (String) sesion.getAttribute("usuarioNombre");
         String mensaje = request.getParameter("mensaje");
 
-        String idRecursoParam = request.getParameter("idRecurso");
+        // 👇 Nombre corregido: "recursoId" (coincide con el formulario JSP y la base de datos)
+        String recursoIdParam = request.getParameter("recursoId");
         String calificacionParam = request.getParameter("calificacion");
+
+        // 🟢 Mostrar datos recibidos para depuración
+        System.out.println("🟢 Usuario ID: " + usuarioId);
+        System.out.println("📦 Recurso ID: " + recursoIdParam);
+        System.out.println("💬 Mensaje: " + mensaje);
+        System.out.println("⭐ Calificación: " + calificacionParam);
 
         Testimonio t = new Testimonio();
         t.setUsuarioId(usuarioId);
@@ -35,25 +42,28 @@ public class TestimonioServlet extends HttpServlet {
         boolean ok = false;
 
         try {
-            if (idRecursoParam != null && !idRecursoParam.isEmpty()
+            // 🔹 Si el testimonio incluye calificación y recurso
+            if (recursoIdParam != null && !recursoIdParam.isEmpty()
                     && calificacionParam != null && !calificacionParam.isEmpty()) {
 
-                int idRecurso = Integer.parseInt(idRecursoParam);
+                int recursoId = Integer.parseInt(recursoIdParam);
                 int calificacion = Integer.parseInt(calificacionParam);
 
-                t.setIdRecurso(idRecurso);
+                // 👇 Usar setRecursoId() (ya corregido en tu clase Testimonio)
+                t.setRecursoId(recursoId);
                 t.setCalificacion(calificacion);
 
                 ok = dao.registrarConCalificacion(t);
-
             } else {
+                // 🔹 Si no incluye calificación (solo mensaje)
                 ok = dao.registrar(t);
             }
 
+            // 🔔 Notificación al administrador
             if (ok) {
                 try {
                     Notificacion notificacion = new Notificacion();
-                    notificacion.setUsuarioId(1);
+                    notificacion.setUsuarioId(1); // 🧑‍💼 ID del admin
                     notificacion.setMensaje("💬 El usuario " + usuarioNombre + " ha enviado un nuevo testimonio.");
                     notificacion.setEstado("NUEVA");
                     new NotificacionDAO().insertar(notificacion);
@@ -67,15 +77,21 @@ public class TestimonioServlet extends HttpServlet {
             ok = false;
         }
 
+        // ✅ Mensaje al usuario
         if (ok) {
+            System.out.println("✅ Testimonio guardado correctamente por usuario " + usuarioNombre);
             request.setAttribute("msg", "✅ Tu testimonio fue enviado y está pendiente de aprobación.");
         } else {
+            System.err.println("❌ Error al guardar el testimonio de " + usuarioNombre);
             request.setAttribute("msg", "❌ Error al enviar el testimonio.");
         }
 
         request.getRequestDispatcher("perfilUsuario.jsp").forward(request, response);
     }
 
+    // ============================================================
+    // 🔹 GET: listar, aprobar, rechazar y eliminar testimonios
+    // ============================================================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -95,7 +111,7 @@ public class TestimonioServlet extends HttpServlet {
                 List<Testimonio> lista = dao.listar();
                 request.setAttribute("testimonios", lista);
 
-                if ("admin".equalsIgnoreCase(rol)) {
+                if ("ADMIN".equalsIgnoreCase(rol)) {
                     request.getRequestDispatcher("testimonios.jsp").forward(request, response);
                 } else {
                     request.getRequestDispatcher("testimonio.jsp").forward(request, response);
@@ -103,21 +119,30 @@ public class TestimonioServlet extends HttpServlet {
                 break;
 
             case "aprobar":
-                if (!"admin".equalsIgnoreCase(rol)) { response.sendRedirect("perfilUsuario.jsp"); return; }
+                if (!"ADMIN".equalsIgnoreCase(rol)) {
+                    response.sendRedirect("perfilUsuario.jsp");
+                    return;
+                }
                 int idA = Integer.parseInt(request.getParameter("id"));
                 dao.cambiarEstado(idA, "Aprobado");
                 response.sendRedirect("TestimonioServlet?action=listar");
                 break;
 
             case "rechazar":
-                if (!"admin".equalsIgnoreCase(rol)) { response.sendRedirect("perfilUsuario.jsp"); return; }
+                if (!"ADMIN".equalsIgnoreCase(rol)) {
+                    response.sendRedirect("perfilUsuario.jsp");
+                    return;
+                }
                 int idR = Integer.parseInt(request.getParameter("id"));
                 dao.cambiarEstado(idR, "Rechazado");
                 response.sendRedirect("TestimonioServlet?action=listar");
                 break;
 
             case "eliminar":
-                if (!"admin".equalsIgnoreCase(rol)) { response.sendRedirect("perfilUsuario.jsp"); return; }
+                if (!"ADMIN".equalsIgnoreCase(rol)) {
+                    response.sendRedirect("perfilUsuario.jsp");
+                    return;
+                }
                 int idE = Integer.parseInt(request.getParameter("id"));
                 dao.eliminar(idE);
                 response.sendRedirect("TestimonioServlet?action=listar");
