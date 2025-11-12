@@ -146,7 +146,7 @@
       <div class="col-md-4 mb-4">
         <div class="card-dashboard text-center">
           <div class="mb-3"><i class="fas fa-calendar-plus fa-2x text-info"></i></div>
-          <div class="stat-title">Realiza tu reserva</div>
+          <div class="stat-title" href="index.jsp" >Realiza tu reserva</div>
           <div class="stat-description">Reserva un espacio en pocos clics.</div>
         </div>
       </div>
