@@ -41,13 +41,20 @@ public class ReservaServlet extends HttpServlet {
                 mensaje = "⚠️ Por favor selecciona una fecha y ambas horas antes de hacer la reserva.";
             } 
             else {
-                try {
-                    int recursoId = Integer.parseInt(recursoIdStr);
-                    java.sql.Date fechaSQL = java.sql.Date.valueOf(fecha);
+                 try {
+        // 💡 IMPRIME LOS DATOS ANTES DE GUARDAR
+        System.out.println("📅 Fecha: " + fecha);
+        System.out.println("🕐 Hora inicio: " + horaInicio);
+        System.out.println("🕐 Hora fin: " + horaFin);
+        System.out.println("🧩 Recurso ID: " + recursoIdStr);
+        System.out.println("👤 Usuario ID: " + usuarioId);
 
-                    // 🔹 Validar que la hora de fin sea posterior a la hora de inicio
-                    if (horaFin.compareTo(horaInicio) <= 0) {
-                        mensaje = "⚠️ La hora de fin debe ser posterior a la hora de inicio.";
+        int recursoId = Integer.parseInt(recursoIdStr);
+        java.sql.Date fechaSQL = java.sql.Date.valueOf(fecha);
+
+        // 🔹 Validar que la hora de fin sea posterior a la hora de inicio
+        if (horaFin.compareTo(horaInicio) <= 0) {
+            mensaje = "⚠️ La hora de fin debe ser posterior a la hora de inicio.";
                     } else {
                         // 🔹 Validar conflictos de horarios
                         boolean conflicto = reservaDAO.hayConflicto(recursoId, fechaSQL, horaInicio, horaFin);
@@ -105,4 +112,5 @@ public class ReservaServlet extends HttpServlet {
         request.getRequestDispatcher("detalleEspacio.jsp").forward(request, response);
     }
 }
+
 
