@@ -136,7 +136,7 @@
                 <% for (Testimonio t : testimonios) { %>
                   <tr>
                     <td><%= t.getId() %></td>
-                    <td><%= t.getTitulo() != null ? t.getTitulo() : "Sin nombre" %></td>
+                    <td><%= t.getRecursoNombre() != null ? t.getRecursoNombre() : "Sin recurso" %></td>
                     <td><%= t.getMensaje() %></td>
                     <td><%= t.getFecha() != null ? t.getFecha() : "—" %></td>
 
