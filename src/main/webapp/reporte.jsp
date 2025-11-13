@@ -288,7 +288,7 @@
 ================================ -->
 
 <script>
-/* COLores */
+/* Colores corporativos */
 const verde = "#007B3E";
 const verdeClaro = "#79C000";
 const azul = "#1F77B4";
@@ -312,6 +312,7 @@ const centerTotal = {
     }
 };
 
+/* ===== ESTADO ===== */
 const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
 const dataEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
 
@@ -335,7 +336,7 @@ if (labelsEstado.length > 0) {
     });
 }
 
-/* RECURSO */
+/* ===== RECURSO ===== */
 const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
 const dataRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
 
@@ -361,7 +362,7 @@ if (labelsRecurso.length > 0) {
     });
 }
 
-/* TIPO */
+/* ===== TIPO ===== */
 const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
 const dataTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
 
