@@ -8,21 +8,22 @@
     <artifactId>ReservaEspacios</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>ReservaEspacios-1.0-SNAPSHOT</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jakartaee>11.0.0-M1</jakartaee>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 
-        <!-- ✅ Corrección: compatibilidad con Tomcat y Java 8 -->
+        <!-- ✔ Java 8 (Tomcat compatible) -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- ✔ Jakarta EE (Servlets / JSP) -->
+        <jakartaee>11.0.0-M1</jakartaee>
     </properties>
-    
+
     <dependencies>
-        <!-- Jakarta EE API -->
+
+        <!-- ✔ Jakarta EE API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
@@ -30,75 +31,85 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSTL API -->
+        <!-- ✔ JSTL API -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>2.0.0</version>
         </dependency>
 
-        <!-- JSTL Implementation -->
+        <!-- ✔ JSTL Implementation -->
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
             <version>2.0.0</version>
         </dependency>
 
-        <!-- JSON (org.json) -->
+        <!-- ✔ JSON -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20230227</version>
         </dependency>
 
-        <!-- Gson -->
+        <!-- ✔ Gson -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
 
-        <!-- iText PDF -->
+        <!-- ✔ PostgreSQL JDBC -->
         <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
         </dependency>
 
-        <!-- Apache POI para Excel -->
+        <!-- ✔ Apache POI para Excel -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.5</version>
         </dependency>
 
-         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
-         </dependency>
+        <!-- ✔ iText PDF -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
+        </dependency>
+
+        <!-- ⭐ IMPORTANTÍSIMO → NECESARIO PARA GRÁFICAS EN PDF -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jcommon</artifactId>
+            <version>1.0.23</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
-            <!-- 🔧 Compilador Java -->
+
+            <!-- ✔ Compilación Java 8 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
-                    <!-- ✅ Forzar compilación con compatibilidad Java 8 -->
                     <source>1.8</source>
                     <target>1.8</target>
-                    <compilerArgs>
-                        <!-- ✅ Evita StringConcatFactory -->
-                        <arg>-XDstringConcat=inline</arg>
-                    </compilerArgs>
                 </configuration>
             </plugin>
 
-            <!-- 🔧 Empaquetado WAR -->
+            <!-- ✔ Empaquetado WAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -107,8 +118,8 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
 </project>
-
