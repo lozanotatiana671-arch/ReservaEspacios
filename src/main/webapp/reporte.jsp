@@ -1,11 +1,29 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
-<%@ page import="java.util.*, org.json.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.json.*" %>
 
 <%
-    // Sesión del administrador
+    // 🔹 Validación de sesión del administrador
     HttpSession sesion = request.getSession(false);
-    String adminNombre = (sesion != null) ? (String) sesion.getAttribute("usuarioNombre") : "Admin";
+    if (sesion == null || sesion.getAttribute("usuarioId") == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    String adminNombre = (String) sesion.getAttribute("usuarioNombre");
+    if (adminNombre == null) adminNombre = "Admin";
+
+    // Función para evitar null
+    String v(Object o) { 
+        return o == null ? "" : o.toString(); 
+    }
+
+    // Datos para gráficos (evitar null)
+    Map<String,Integer> reservasPorEstado = (Map<String,Integer>) request.getAttribute("reservasPorEstado");
+    Map<String,Integer> reservasPorRecurso = (Map<String,Integer>) request.getAttribute("reservasPorRecurso");
+    if (reservasPorEstado == null) reservasPorEstado = new LinkedHashMap<>();
+    if (reservasPorRecurso == null) reservasPorRecurso = new LinkedHashMap<>();
 %>
 
 <!DOCTYPE html>
@@ -25,14 +43,15 @@
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/sub_menuadmin.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
-  
-  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
+
 </head>
 
 <body>
-<!-- 🔹 Navbar para administrador -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+<!-- 🔹 Navbar Administrador -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="ListaReservasServlet">SistemaReserva</a>
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" 
             data-target="#navbarNav" aria-controls="navbarNav" 
             aria-expanded="false" aria-label="Toggle navigation">
@@ -47,20 +66,21 @@
             <li class="nav-item"><a class="nav-link" href="ReporteServlet">📊 Reportes</a></li>
         </ul>
 
-         <span class="navbar-text text-white mr-3">
+        <span class="navbar-text text-white mr-3">
             👤 <%= adminNombre %>
         </span>
-        <a href="LogoutServlet" class="btn btn-logout btn-sm btn-outline-light">Cerrar Sesión</a>
+        <a href="LogoutServlet" class="btn btn-sm btn-outline-light">Cerrar Sesión</a>
     </div>
-  </nav>
+</nav>
 
-  <!-- Botón menú móvil -->
-  <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+<!-- Botón menú móvil -->
+<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
-  <div class="container-fluid">
-    <div class="row" style="margin-right: -20px;">
-      <!-- Menú lateral -->
-      <nav class="col-md-2 side-menu" id="sideMenu">
+<div class="container-fluid">
+  <div class="row" style="margin-right: -20px;">
+
+    <!-- 🔹 Menú lateral -->
+    <nav class="col-md-2 side-menu" id="sideMenu">
         <h4><i class="fas fa-cogs"></i> Administración</h4>
         <a href="UsuarioServlet?action=listar"><i class="fas fa-users"></i> Usuarios</a>
         <a href="configuracion.jsp"><i class="fas fa-cog"></i> Configuración</a>
@@ -73,82 +93,90 @@
         <a href="nuevoRecurso.jsp"><i class="fas fa-plus-circle"></i> Nuevo Espacio</a>
         <a href="ListaRecursosServlet?action=listar"><i class="fas fa-building"></i> Gestionar Espacios</a>
         <a href="ReporteServlet" class="active"><i class="fas fa-chart-bar"></i> Reportes</a>
-      </nav>
+    </nav>
 
-      <!-- Contenido principal -->
-      <main class="col-md-10 content-area">
+    <!-- 🔹 Contenido principal -->
+    <main class="col-md-10 content-area">
 
         <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
 
+        <!-- 🔹 Formulario filtros -->
         <form action="ReporteServlet" method="get" class="mb-4">
-  <div class="row">
+            <div class="row">
 
-    <!-- 🔹 Fecha inicio -->
-    <div class="col-md-6 mb-3">
-      <label for="fechaInicio">Fecha Inicio</label>
-      <input type="date" id="fechaInicio" name="fechaInicio" class="form-control"
-             value="<%= request.getAttribute("fechaInicio") != null ? request.getAttribute("fechaInicio") : "" %>">
-    </div>
+                <!-- Fecha inicio -->
+                <div class="col-md-6 mb-3">
+                    <label for="fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio" name="fechaInicio" class="form-control"
+                           value="<%= v(request.getAttribute("fechaInicio")) %>">
+                </div>
 
-    <!-- 🔹 Fecha fin -->
-    <div class="col-md-6 mb-3">
-      <label for="fechaFin">Fecha Fin</label>
-      <input type="date" id="fechaFin" name="fechaFin" class="form-control"
-             value="<%= request.getAttribute("fechaFin") != null ? request.getAttribute("fechaFin") : "" %>">
-    </div>
+                <!-- Fecha fin -->
+                <div class="col-md-6 mb-3">
+                    <label for="fechaFin">Fecha Fin</label>
+                    <input type="date" id="fechaFin" name="fechaFin" class="form-control"
+                           value="<%= v(request.getAttribute("fechaFin")) %>">
+                </div>
 
-    <!-- 🔹 Tipo de espacio -->
-    <div class="col-md-6 mb-3">
-      <label for="tipo">Tipo de espacio</label>
-      <select id="tipo" name="tipo" class="form-control">
-        <option value="">Todos</option>
-        <option value="SALON" <%= "SALON".equals(request.getAttribute("tipo")) ? "selected" : "" %>>Salón</option>
-        <option value="LABORATORIO" <%= "LABORATORIO".equals(request.getAttribute("tipo")) ? "selected" : "" %>>Laboratorio</option>
-        <option value="EQUIPO" <%= "EQUIPO".equals(request.getAttribute("tipo")) ? "selected" : "" %>>Equipo</option>
-      </select>
-    </div>
+                <!-- Tipo -->
+                <div class="col-md-6 mb-3">
+                    <label for="tipo">Tipo de espacio</label>
+                    <select id="tipo" name="tipo" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="SALON" <%= "SALON".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Salón</option>
+                        <option value="LABORATORIO" <%= "LABORATORIO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Laboratorio</option>
+                        <option value="EQUIPO" <%= "EQUIPO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Equipo</option>
+                    </select>
+                </div>
 
-    <!-- 🔹 Estado -->
-    <div class="col-md-6 mb-3">
-      <label for="estado">Estado</label>
-      <select id="estado" name="estado" class="form-control">
-        <option value="">Todos</option>
-        <option value="ACTIVO" <%= "ACTIVO".equals(request.getAttribute("estado")) ? "selected" : "" %>>Activo</option>
-        <option value="INACTIVO" <%= "INACTIVO".equals(request.getAttribute("estado")) ? "selected" : "" %>>Inactivo</option>
-      </select>
-    </div>
+                <!-- Estado -->
+                <div class="col-md-6 mb-3">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="ACTIVO" <%= "ACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Activo</option>
+                        <option value="INACTIVO" <%= "INACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Inactivo</option>
+                    </select>
+                </div>
 
-    <!-- 🔹 Capacidad -->
-    <div class="col-md-6 mb-3">
-      <label for="capacidad">Capacidad</label>
-      <input type="number" id="capacidad" name="capacidad" class="form-control" placeholder="Ej: 20" min="1"
-             value="<%= request.getAttribute("capacidad") != null ? request.getAttribute("capacidad") : "" %>">
-    </div>
-    
-<!-- 🔹 Botones -->
-<!-- 🔹 Botones -->
-<div class="col-md-12 text-right mt-3">
-  <button type="submit" class="btn btn-success">
-    <i class="fas fa-search"></i> Generar Reporte
-  </button>
+                <!-- Capacidad -->
+                <div class="col-md-6 mb-3">
+                    <label for="capacidad">Capacidad</label>
+                    <input type="number" id="capacidad" name="capacidad" class="form-control" min="1"
+                           value="<%= v(request.getAttribute("capacidad")) %>">
+                </div>
 
-  <!-- 🔹 Exportar PDF -->
-  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=pdf&fechaInicio=<%= request.getAttribute("fechaInicio") != null ? request.getAttribute("fechaInicio") : "" %>&fechaFin=<%= request.getAttribute("fechaFin") != null ? request.getAttribute("fechaFin") : "" %>&tipo=<%= request.getAttribute("tipo") != null ? request.getAttribute("tipo") : "" %>&estado=<%= request.getAttribute("estado") != null ? request.getAttribute("estado") : "" %>&capacidad=<%= request.getAttribute("capacidad") != null ? request.getAttribute("capacidad") : "" %>" 
-     class="btn btn-danger ml-2">
-    <i class="fas fa-file-pdf"></i> Exportar PDF
-  </a>
+                <!-- Botones -->
+                <div class="col-md-12 text-right mt-3">
+                  <button type="submit" class="btn btn-success">
+                    <i class="fas fa-search"></i> Generar Reporte
+                  </button>
 
-  <!-- 🔹 Exportar Excel -->
-  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=excel&fechaInicio=<%= request.getAttribute("fechaInicio") != null ? request.getAttribute("fechaInicio") : "" %>&fechaFin=<%= request.getAttribute("fechaFin") != null ? request.getAttribute("fechaFin") : "" %>&tipo=<%= request.getAttribute("tipo") != null ? request.getAttribute("tipo") : "" %>&estado=<%= request.getAttribute("estado") != null ? request.getAttribute("estado") : "" %>&capacidad=<%= request.getAttribute("capacidad") != null ? request.getAttribute("capacidad") : "" %>" 
-     class="btn btn-primary ml-2">
-    <i class="fas fa-file-excel"></i> Exportar Excel
-  </a>
-</div>
+                  <!-- Exportar PDF -->
+                  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=pdf
+                    &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
+                    &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
+                    &tipo=<%= v(request.getAttribute("tipo")) %>
+                    &estado=<%= v(request.getAttribute("estado")) %>
+                    &capacidad=<%= v(request.getAttribute("capacidad")) %>"
+                     class="btn btn-danger ml-2">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                  </a>
 
+                  <!-- Exportar Excel -->
+                  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=excel
+                    &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
+                    &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
+                    &tipo=<%= v(request.getAttribute("tipo")) %>
+                    &estado=<%= v(request.getAttribute("estado")) %>
+                    &capacidad=<%= v(request.getAttribute("capacidad")) %>"
+                     class="btn btn-primary ml-2">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                  </a>
+                </div>
 
-  </div>
-</form>
-
+            </div>
+        </form>
 
         <!-- 🔹 Gráficas -->
         <div class="row" id="graficasContainer">
@@ -158,6 +186,7 @@
               <canvas id="chartEstado"></canvas>
             </div>
           </div>
+
           <div class="col-md-6">
             <div class="rf-chart-section">
               <h5><i class="bi bi-bar-chart-line"></i> Reservas por Recurso</h5>
@@ -192,7 +221,7 @@
                 <td><%= fila.get("estado") %></td>
                 <td><%= fila.get("capacidad") %></td>
                 <td><%= fila.get("tarifa") %></td>
-                <td><%= "ACTIVO".equalsIgnoreCase((String) fila.get("estado")) ? "Sí" : "No" %></td>
+                <td><%= "ACTIVO".equalsIgnoreCase(v(fila.get("estado"))) ? "Sí" : "No" %></td>
                 <td><%= fila.get("ubicacion") %></td>
               </tr>
               <% }} else { %>
@@ -203,27 +232,23 @@
             </tbody>
           </table>
         </div>
-      </main>
-    </div>
+
+    </main>
   </div>
+</div>
 
-  <!-- Librerías externas -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <%
-    Map<String,Integer> reservasPorEstado = (Map<String,Integer>) request.getAttribute("reservasPorEstado");
-    Map<String,Integer> reservasPorRecurso = (Map<String,Integer>) request.getAttribute("reservasPorRecurso");
-    if (reservasPorEstado == null) reservasPorEstado = new LinkedHashMap<>();
-    if (reservasPorRecurso == null) reservasPorRecurso = new LinkedHashMap<>();
-  %>
+<script>
+    const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
+    const dataEstado   = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
 
-  <script>
-    const labelsEstado = <%= new JSONArray(reservasPorEstado.keySet()) %>;
-    const dataEstado   = <%= new JSONArray(reservasPorEstado.values()) %>;
-    const labelsRecurso = <%= new JSONArray(reservasPorRecurso.keySet()) %>;
-    const dataRecurso   = <%= new JSONArray(reservasPorRecurso.values()) %>;
+    const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
+    const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
 
-    // Chart Estado
     new Chart(document.getElementById('chartEstado'), {
       type: 'doughnut',
       data: {
@@ -237,7 +262,6 @@
       options: { plugins: { legend: { position: 'bottom' } } }
     });
 
-    // Chart Recurso
     new Chart(document.getElementById('chartRecurso'), {
       type: 'bar',
       data: {
@@ -256,17 +280,18 @@
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
       }
     });
-  </script>
+</script>
 
-  <!-- Menú móvil -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const menuToggle = document.getElementById('menuToggle');
-      const sideMenu = document.getElementById('sideMenu');
-      if (menuToggle && sideMenu) {
-        menuToggle.addEventListener('click', () => sideMenu.classList.toggle('active'));
-      }
-    });
-  </script>
+<!-- Menú móvil -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sideMenu = document.getElementById('sideMenu');
+    if (menuToggle && sideMenu) {
+      menuToggle.addEventListener('click', () => sideMenu.classList.toggle('active'));
+    }
+  });
+</script>
+
 </body>
 </html>
