@@ -17,21 +17,21 @@ public class ReporteServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         // ------------------------------
-        // Filtros (NOMBRES EXACTOS DEL JSP)
+        // Filtros EXACTOS del JSP
         // ------------------------------
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
-        String tipoEspacio = request.getParameter("tipoEspacio");   // ✔ CORRECTO
-        String estadoRecurso = request.getParameter("estadoRecurso"); // ✔ CORRECTO
+        String tipoEspacio = request.getParameter("tipo");        // ✔ JSP usa name="tipo"
+        String estadoRecurso = request.getParameter("estado");    // ✔ JSP usa name="estado"
 
-        // Mantener filtros en JSP
+        // Mantener filtros en el JSP
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
-        request.setAttribute("tipoEspacio", tipoEspacio);
-        request.setAttribute("estadoRecurso", estadoRecurso);
+        request.setAttribute("tipo", tipoEspacio);
+        request.setAttribute("estado", estadoRecurso);
 
         // ------------------------------
-        // Estructuras de datos
+        // Estructuras para el JSP
         // ------------------------------
         Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
@@ -43,7 +43,7 @@ public class ReporteServlet extends HttpServlet {
             boolean tieneFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
-            // Estado correcto en BD
+            // Convertir filtro visual → valor real en BD
             String estadoBD = null;
             if ("ACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "DISPONIBLE";
             if ("INACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "OCUPADO";
@@ -63,6 +63,7 @@ public class ReporteServlet extends HttpServlet {
             try (PreparedStatement ps = con.prepareStatement(sqlEstado.toString())) {
 
                 int idx = 1;
+
                 if (tieneFecha) {
                     ps.setString(idx++, fechaInicio);
                     ps.setString(idx++, fechaFin);
@@ -117,7 +118,7 @@ public class ReporteServlet extends HttpServlet {
             }
 
             // =====================================================
-            // 3. RESERVAS POR TIPO DE ESPACIO
+            // 3. RESERVAS POR TIPO
             // =====================================================
             StringBuilder sqlTipo = new StringBuilder(
                 "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
@@ -139,6 +140,7 @@ public class ReporteServlet extends HttpServlet {
                 }
 
                 ResultSet rs = ps.executeQuery();
+
                 while (rs.next()) {
                     reservasPorTipo.put(rs.getString("tipo"), rs.getInt("total"));
                 }
@@ -147,29 +149,29 @@ public class ReporteServlet extends HttpServlet {
             // =====================================================
             // 4. TABLA DE RECURSOS FILTRADA
             // =====================================================
-            StringBuilder sqlR = new StringBuilder(
+            StringBuilder sqlRecursos = new StringBuilder(
                 "SELECT rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
                 "FROM recursos rc WHERE 1=1 "
             );
 
-            List<Object> params = new ArrayList<>();
+            List<Object> parametros = new ArrayList<>();
 
             if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
-                sqlR.append(" AND rc.tipo = ? ");
-                params.add(tipoEspacio);
+                sqlRecursos.append(" AND rc.tipo = ? ");
+                parametros.add(tipoEspacio);
             }
 
             if (estadoBD != null) {
-                sqlR.append(" AND rc.estado = ? ");
-                params.add(estadoBD);
+                sqlRecursos.append(" AND rc.estado = ? ");
+                parametros.add(estadoBD);
             }
 
-            sqlR.append(" ORDER BY rc.nombre ASC ");
+            sqlRecursos.append(" ORDER BY rc.nombre ASC ");
 
-            try (PreparedStatement ps = con.prepareStatement(sqlR.toString())) {
+            try (PreparedStatement ps = con.prepareStatement(sqlRecursos.toString())) {
 
-                for (int i = 0; i < params.size(); i++) {
-                    ps.setObject(i + 1, params.get(i));
+                for (int i = 0; i < parametros.size(); i++) {
+                    ps.setObject(i + 1, parametros.get(i));
                 }
 
                 ResultSet rs = ps.executeQuery();
@@ -192,7 +194,7 @@ public class ReporteServlet extends HttpServlet {
         }
 
         // ------------------------------
-        // Enviar al JSP
+        // Enviar datos al JSP
         // ------------------------------
         request.setAttribute("reservasPorEstado", reservasPorEstado);
         request.setAttribute("reservasPorRecurso", reservasPorRecurso);
