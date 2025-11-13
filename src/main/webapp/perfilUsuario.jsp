@@ -143,23 +143,23 @@
           <div class="stat-description">Revisa o edita tus testimonios compartidos.</div>
         </div>
       </div>
-      <style>
+<style>
   .btn-reserva {
-      background-color: #007B3E;      /* Verde medio */
-      color: white;
+      background-color: #79C000;   /* Verde claro */
+      color: #00482B;              /* Verde oscuro para contraste */
       border: none;
       font-weight: 600;
-      padding: 6px 14px;
+      padding: 6px 19px;
       border-radius: 8px;
-      text-decoration: none !important;   /* Sin subrayado */
+      text-decoration: none !important;
       transition: 0.3s ease;
       display: inline-block;
   }
 
   .btn-reserva:hover {
-      background-color: #00482B;      /* Verde oscuro */
-      color: #FBE122;                 /* Amarillo */
-      text-decoration: none !important; 
+      background-color: #007B3E;   /* Verde medio al pasar mouse */
+      color: white;
+      text-decoration: none !important;
   }
 </style>
 
@@ -170,8 +170,20 @@
         </div>
 
         <div class="stat-title">Realiza tu reserva</div>
-        <div class="stat-description">Reserva un espacio en pocos clics.</div>
 
+        <!-- Botón pequeño personalizado -->
+        <a href="index.jsp" class="btn-reserva btn-sm mt-2">Ir ahora</a>
+    </div>
+</div>
+
+
+<div class="col-md-4 mb-4">
+    <div class="card-dashboard text-center">
+        <div class="mb-3">
+            <i class="fas fa-calendar-plus fa-2x text-info"></i>
+        </div>
+
+        <div class="stat-title">Realiza tu reserva</div>
         <!-- Botón pequeño personalizado -->
         <a href="index.jsp" class="btn-reserva btn-sm mt-2">Ir ahora</a>
     </div>
