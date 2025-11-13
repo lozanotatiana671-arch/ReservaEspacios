@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="jakarta.servlet.http.HttpSession, java.util.*, com.reservas.*" %>
+
 <%
     // 🔹 Verificar sesión
     HttpSession sesion = request.getSession(false);
@@ -11,10 +12,11 @@
     int usuarioId = (int) sesion.getAttribute("usuarioId");
     String usuarioNombre = (String) sesion.getAttribute("usuarioNombre");
 
-    // 🔹 Cargar notificaciones desde el filtro
-    List<Notificacion> notificaciones = (List<Notificacion>) request.getAttribute("notificaciones");
+    // 🔹 Cargar notificaciones desde la SESIÓN (NO desde request)
+    List<Notificacion> notificaciones = (List<Notificacion>) sesion.getAttribute("notificaciones");
     if (notificaciones == null) notificaciones = new ArrayList<>();
-    Integer notificacionesCount = (Integer) request.getAttribute("notificacionesCount");
+
+    Integer notificacionesCount = (Integer) sesion.getAttribute("notificacionesCount");
     if (notificacionesCount == null) notificacionesCount = notificaciones.size();
 
     // 🔹 Parámetros de paginación
@@ -47,12 +49,12 @@
 </head>
 
 <body>
+
  <!-- 🔹 Sidebar -->
 <div class="sidebar">
   <a class="navbar-brand" href="index.jsp">ReservaEspacios</a>
   <ul class="nav flex-column mt-4">
 
-    <!-- Dashboard -->
     <li class="nav-item">
       <a class="nav-link" href="perfilUsuario.jsp">
         <i class="fas fa-tachometer-alt"></i>
@@ -60,7 +62,6 @@
       </a>
     </li>
 
-    <!-- Mis Reservas -->
     <li class="nav-item">
       <a class="nav-link" href="MisReservasServlet">
         <i class="fas fa-calendar-check"></i>
@@ -68,7 +69,6 @@
       </a>
     </li>
 
-    <!-- Mis Testimonios -->
     <li class="nav-item">
       <a class="nav-link" href="misTestimonios.jsp">
         <i class="fas fa-comment-dots"></i>
@@ -76,9 +76,8 @@
       </a>
     </li>
 
-    <!-- Notificaciones -->
     <li class="nav-item">
-      <a class="nav-link" href="notificaciones.jsp">
+      <a class="nav-link active" href="notificaciones.jsp">
         <i class="fas fa-bell"></i>
         <span>Notificaciones</span>
         <% if (notificacionesCount > 0) { %>
@@ -87,7 +86,6 @@
       </a>
     </li>
 
-    <!-- Mi Perfil -->
     <li class="nav-item">
       <a class="nav-link" href="editarPerfil.jsp">
         <i class="fas fa-user"></i>
@@ -95,7 +93,6 @@
       </a>
     </li>
 
-    <!-- Contáctenos -->
     <li class="nav-item">
       <a class="nav-link" href="contactenos.jsp">
         <i class="fas fa-envelope"></i>
@@ -117,10 +114,11 @@
     </div>
     <br><br><br>
 
-    <!-- ✅ SECCIÓN DE NOTIFICACIONES -->
+    <!-- SECCIÓN NOTIFICACIONES -->
     <div class="noti-wrapper">
       <div class="noti-header">
         <h2><i class="fas fa-bell"></i> Notificaciones</h2>
+
         <% if (notificacionesCount > 0) { %>
           <form action="NotificacionServlet" method="post">
             <input type="hidden" name="action" value="marcarTodas">
@@ -135,6 +133,7 @@
         <div class="noti-empty">
           <p><i class="fas fa-inbox"></i> No tienes notificaciones por el momento.</p>
         </div>
+
       <% } else { 
           for (int i = start; i < end; i++) {
               Notificacion n = notificaciones.get(i);
@@ -147,11 +146,13 @@
                   clase = "aviso"; icono = "fa-circle-exclamation"; color = "#FBE122";
               }
       %>
+
         <div class="noti-card <%= clase %>">
           <div class="noti-icon" style="color:<%= color %>;">
             <i class="fa-solid <%= icono %>"></i>
           </div>
           <div class="noti-text"><%= msg %></div>
+
           <% if ("NUEVA".equalsIgnoreCase(n.getEstado())) { %>
             <form action="NotificacionServlet" method="post" class="ml-auto">
               <input type="hidden" name="action" value="marcarLeida">
@@ -162,33 +163,36 @@
             </form>
           <% } %>
         </div>
+
       <% } %>
 
-      <!-- 🔹 Paginación -->
-<% if (totalPages > 1) { %>
-  <nav class="mt-4">
-    <ul class="pagination justify-content-center">
-      <li class="page-item <%= (paginaActual <= 1 ? "disabled" : "") %>">
-        <a class="page-link" href="notificaciones.jsp?page=<%= paginaActual - 1 %>">&laquo; Anterior</a>
-      </li>
-      <% for (int p = 1; p <= totalPages; p++) { %>
-        <li class="page-item <%= (p == paginaActual ? "active" : "") %>">
-          <a class="page-link" href="notificaciones.jsp?page=<%= p %>"><%= p %></a>
-        </li>
+      <!-- Paginación -->
+      <% if (totalPages > 1) { %>
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= (paginaActual <= 1 ? "disabled" : "") %>">
+              <a class="page-link" href="notificaciones.jsp?page=<%= paginaActual - 1 %>">&laquo; Anterior</a>
+            </li>
+
+            <% for (int p = 1; p <= totalPages; p++) { %>
+              <li class="page-item <%= (p == paginaActual ? "active" : "") %>">
+                <a class="page-link" href="notificaciones.jsp?page=<%= p %>"><%= p %></a>
+              </li>
+            <% } %>
+
+            <li class="page-item <%= (paginaActual >= totalPages ? "disabled" : "") %>">
+              <a class="page-link" href="notificaciones.jsp?page=<%= paginaActual + 1 %>">Siguiente &raquo;</a>
+            </li>
+          </ul>
+        </nav>
       <% } %>
-      <li class="page-item <%= (paginaActual >= totalPages ? "disabled" : "") %>">
-        <a class="page-link" href="notificaciones.jsp?page=<%= paginaActual + 1 %>">Siguiente &raquo;</a>
-      </li>
-    </ul>
-  </nav>
-<% } %>
 
       <% } %>
     </div>
-    <!-- 🟢 FIN SECCIÓN NOTIFICACIONES -->
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
