@@ -25,11 +25,10 @@ public class TestimonioServlet extends HttpServlet {
         String usuarioNombre = (String) sesion.getAttribute("usuarioNombre");
         String mensaje = request.getParameter("mensaje");
 
-        // 👇 Nombre corregido: "recursoId" (coincide con el formulario JSP y la base de datos)
         String recursoIdParam = request.getParameter("recursoId");
         String calificacionParam = request.getParameter("calificacion");
 
-        // 🟢 Mostrar datos recibidos para depuración
+        // 🟢 Debug
         System.out.println("🟢 Usuario ID: " + usuarioId);
         System.out.println("📦 Recurso ID: " + recursoIdParam);
         System.out.println("💬 Mensaje: " + mensaje);
@@ -42,30 +41,32 @@ public class TestimonioServlet extends HttpServlet {
         boolean ok = false;
 
         try {
-            // 🔹 Si el testimonio incluye calificación y recurso
+            // 🔹 Testimonio con calificación y recurso
             if (recursoIdParam != null && !recursoIdParam.isEmpty()
                     && calificacionParam != null && !calificacionParam.isEmpty()) {
 
                 int recursoId = Integer.parseInt(recursoIdParam);
                 int calificacion = Integer.parseInt(calificacionParam);
 
-                // 👇 Usar setRecursoId() (ya corregido en tu clase Testimonio)
                 t.setRecursoId(recursoId);
                 t.setCalificacion(calificacion);
 
                 ok = dao.registrarConCalificacion(t);
             } else {
-                // 🔹 Si no incluye calificación (solo mensaje)
+                // 🔹 Testimonio sin calificación
                 ok = dao.registrar(t);
             }
 
-            // 🔔 Notificación al administrador
+            // ********************************************
+            // 🔔 NOTIFICACIÓN SOLO PARA EL USUARIO (CORREGIDO)
+            // ********************************************
             if (ok) {
                 try {
                     Notificacion notificacion = new Notificacion();
-                    notificacion.setUsuarioId(1); // 🧑‍💼 ID del admin
-                    notificacion.setMensaje("💬 El usuario " + usuarioNombre + " ha enviado un nuevo testimonio.");
+                    notificacion.setUsuarioId(usuarioId); // AHORA SÍ → para el usuario
+                    notificacion.setMensaje("💬 Tu testimonio fue enviado correctamente.");
                     notificacion.setEstado("NUEVA");
+
                     new NotificacionDAO().insertar(notificacion);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -77,13 +78,13 @@ public class TestimonioServlet extends HttpServlet {
             ok = false;
         }
 
-        // ✅ Mensaje al usuario
+        // Mensaje visual al usuario
         if (ok) {
             System.out.println("✅ Testimonio guardado correctamente por usuario " + usuarioNombre);
             request.setAttribute("msg", "✅ Tu testimonio fue enviado y está pendiente de aprobación.");
         } else {
             System.err.println("❌ Error al guardar el testimonio de " + usuarioNombre);
-            request.setAttribute("msg", "❌ Error al enviar el testimonio.");
+            request.setAttribute("msg", "❌ Error al enviar el testimonio. Intenta nuevamente.");
         }
 
         request.getRequestDispatcher("perfilUsuario.jsp").forward(request, response);
@@ -107,6 +108,7 @@ public class TestimonioServlet extends HttpServlet {
         if (action == null) action = "listar";
 
         switch (action) {
+
             case "listar":
                 List<Testimonio> lista = dao.listar();
                 request.setAttribute("testimonios", lista);
