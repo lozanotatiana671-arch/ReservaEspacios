@@ -21,20 +21,21 @@ public class ReporteServlet extends HttpServlet {
         // ------------------------------
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
-        String tipoEspacio = request.getParameter("tipoEspacio");   // ✔ igual al exportador
-        String estadoRecurso = request.getParameter("estadoRecurso"); // ✔ igual al exportador
+        String tipoEspacio = request.getParameter("tipo");     // ✔ el JSP usa name="tipo"
+        String estadoRecurso = request.getParameter("estado"); // ✔ el JSP usa name="estado"
 
         // Mantener filtros en JSP
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
-        request.setAttribute("tipoEspacio", tipoEspacio);
-        request.setAttribute("estadoRecurso", estadoRecurso);
+        request.setAttribute("tipo", tipoEspacio);
+        request.setAttribute("estado", estadoRecurso);
 
         // ------------------------------
         // Estructuras de datos
         // ------------------------------
         Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
+        Map<String, Integer> reservasPorTipo = new LinkedHashMap<>(); // ✔ NECESARIA PARA LA GRÁFICA
         Map<String, Integer> reservasPorUsuario = new LinkedHashMap<>();
         List<Map<String, Object>> listaRecursos = new ArrayList<>();
 
@@ -117,19 +118,19 @@ public class ReporteServlet extends HttpServlet {
             }
 
             // =====================================================
-            // 3. RESERVAS POR USUARIO
+            // 3. RESERVAS POR TIPO DE ESPACIO (✔ NUEVA, FALTABA)
             // =====================================================
-            StringBuilder sqlUsuario = new StringBuilder(
-                "SELECT u.nombre AS usuario, COUNT(*) AS total " +
-                "FROM reservas r JOIN usuarios u ON r.usuario_id = u.id WHERE 1=1 "
+            StringBuilder sqlTipo = new StringBuilder(
+                "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
+                "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
             );
 
             if (tieneFecha)
-                sqlUsuario.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+                sqlTipo.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
 
-            sqlUsuario.append(" GROUP BY u.nombre ORDER BY total DESC ");
+            sqlTipo.append(" GROUP BY rc.tipo ORDER BY total DESC ");
 
-            try (PreparedStatement ps = con.prepareStatement(sqlUsuario.toString())) {
+            try (PreparedStatement ps = con.prepareStatement(sqlTipo.toString())) {
 
                 int idx = 1;
 
@@ -140,15 +141,15 @@ public class ReporteServlet extends HttpServlet {
 
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    reservasPorUsuario.put(rs.getString("usuario"), rs.getInt("total"));
+                    reservasPorTipo.put(rs.getString("tipo"), rs.getInt("total"));
                 }
             }
 
             // =====================================================
-            // 4. LISTA DE RECURSOS FILTRADA
+            // 4. TABLA DE RECURSOS FILTRADA
             // =====================================================
             StringBuilder sqlR = new StringBuilder(
-                "SELECT rc.id, rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
+                "SELECT rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
                 "FROM recursos rc WHERE 1=1 "
             );
 
@@ -196,6 +197,7 @@ public class ReporteServlet extends HttpServlet {
         // ------------------------------
         request.setAttribute("reservasPorEstado", reservasPorEstado);
         request.setAttribute("reservasPorRecurso", reservasPorRecurso);
+        request.setAttribute("reservasPorTipo", reservasPorTipo);  // ✔ AHORA SÍ SE ENVÍA
         request.setAttribute("reservasPorUsuario", reservasPorUsuario);
         request.setAttribute("listaRecursos", listaRecursos);
 
