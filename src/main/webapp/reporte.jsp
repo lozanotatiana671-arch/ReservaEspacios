@@ -4,7 +4,7 @@
 <%@ page import="org.json.*" %>
 
 <%!
-    // ✅ Función para evitar valores null en el JSP
+    // ✅ Función para evitar valores null (DEBE IR AQUÍ)
     public String v(Object o) {
         return (o == null) ? "" : o.toString();
     }
@@ -21,7 +21,7 @@
     String adminNombre = (String) sesion.getAttribute("usuarioNombre");
     if (adminNombre == null) adminNombre = "Admin";
 
-    // 🔹 Obtener datos enviados desde el servlet
+    // 🔹 Obtener datos
     Map<String,Integer> reservasPorEstado = (Map<String,Integer>) request.getAttribute("reservasPorEstado");
     Map<String,Integer> reservasPorRecurso = (Map<String,Integer>) request.getAttribute("reservasPorRecurso");
     List<Map<String,Object>> listaRecursos = (List<Map<String,Object>>) request.getAttribute("listaRecursos");
@@ -38,9 +38,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administrador - Reportes</title>
 
-  <!-- Bootstrap y FontAwesome -->
+  <!-- Bootstrap y Font Awesome -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- CSS personalizados -->
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/admin-panel.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/sub_menuadmin.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
+
 </head>
 
 <body>
@@ -50,7 +58,8 @@
     <a class="navbar-brand" href="ListaReservasServlet">SistemaReserva</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" 
-            data-target="#navbarNav">
+            data-target="#navbarNav" aria-controls="navbarNav" 
+            aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -69,13 +78,32 @@
     </div>
 </nav>
 
+<!-- Botón menú móvil -->
+<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
 <div class="container-fluid">
-  <div class="row">
+  <div class="row" style="margin-right: -20px;">
+
+    <!-- 🔹 Menú lateral (NO SE TOCÓ NADA) -->
+    <nav class="col-md-2 side-menu" id="sideMenu">
+        <h4><i class="fas fa-cogs"></i> Administración</h4>
+        <a href="UsuarioServlet?action=listar"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="configuracion.jsp"><i class="fas fa-cog"></i> Configuración</a>
+        <a href="BannerServlet"><i class="fas fa-image"></i> Banner</a>
+        <hr>
+        <a href="ListaReservasServlet"><i class="fas fa-calendar-check"></i> Gestionar Reservas</a>
+        <a href="TestimonioServlet?action=listar"><i class="fas fa-comment-alt"></i> Gestionar Testimonios</a>
+        <a href="ListaConsultasServlet?action=listar"><i class="fas fa-envelope"></i> Gestionar Consultas</a>
+        <hr>
+        <a href="nuevoRecurso.jsp"><i class="fas fa-plus-circle"></i> Nuevo Espacio</a>
+        <a href="ListaRecursosServlet?action=listar"><i class="fas fa-building"></i> Gestionar Espacios</a>
+        <a href="ReporteServlet" class="active"><i class="fas fa-chart-bar"></i> Reportes</a>
+    </nav>
 
     <!-- 🔹 Contenido principal -->
-    <main class="col-md-12 content-area">
+    <main class="col-md-10 content-area">
 
-        <h2 class="mt-4"><i class="fa fa-chart-bar"></i> Reporte de Espacios</h2>
+        <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
 
         <!-- 🔹 Formulario filtros -->
         <form action="ReporteServlet" method="get" class="mb-4">
@@ -155,6 +183,23 @@
             </div>
         </form>
 
+        <!-- 🔹 Gráficas -->
+        <div class="row" id="graficasContainer">
+          <div class="col-md-6">
+            <div class="rf-chart-section">
+              <h5><i class="bi bi-pie-chart"></i> Reservas por Estado</h5>
+              <canvas id="chartEstado"></canvas>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="rf-chart-section">
+              <h5><i class="bi bi-bar-chart-line"></i> Reservas por Recurso</h5>
+              <canvas id="chartRecurso"></canvas>
+            </div>
+          </div>
+        </div>
+
         <!-- 🔹 Tabla -->
         <div class="rf-table-section mt-4">
           <table class="table table-striped table-bordered">
@@ -170,8 +215,10 @@
               </tr>
             </thead>
             <tbody>
-              <% if (!listaRecursos.isEmpty()) {
-                   for (Map<String, Object> fila : listaRecursos) { %>
+              <%
+                if (listaRecursos != null && !listaRecursos.isEmpty()) {
+                  for (Map<String, Object> fila : listaRecursos) {
+              %>
               <tr>
                 <td><%= fila.get("nombre") %></td>
                 <td><%= fila.get("tipo") %></td>
@@ -196,6 +243,7 @@
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -209,17 +257,44 @@
       type: 'doughnut',
       data: {
         labels: labelsEstado,
-        datasets: [{ data: dataEstado }]
-      }
+        datasets: [{
+          data: dataEstado,
+          backgroundColor: ['#79C000', '#FBE122', '#00482B', '#DC3545'],
+          borderWidth: 0
+        }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } } }
     });
 
     new Chart(document.getElementById('chartRecurso'), {
       type: 'bar',
       data: {
         labels: labelsRecurso,
-        datasets: [{ data: dataRecurso }]
+        datasets: [{
+          label: 'Reservas',
+          data: dataRecurso,
+          backgroundColor: '#007B3E',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
       }
     });
+</script>
+
+<!-- Menú móvil -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const sideMenu = document.getElementById('sideMenu');
+    if (menuToggle && sideMenu) {
+      menuToggle.addEventListener('click', () => sideMenu.classList.toggle('active'));
+    }
+  });
 </script>
 
 </body>
