@@ -324,7 +324,7 @@
 
 <!-- PAGINACIÓN (2 filas) -->
 <script>
-    const rowsPerPage = 2;
+    const rowsPerPage = 3;
     const table = document.getElementById("tablaRecursos");
 
     if (table) {
