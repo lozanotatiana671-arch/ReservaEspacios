@@ -4,14 +4,12 @@
 <%@ page import="org.json.*" %>
 
 <%!
-    // Función segura para evitar null
     public String v(Object o) {
         return (o == null) ? "" : o.toString();
     }
 %>
 
 <%
-    // 🔹 Validación de sesión del administrador
     HttpSession sesion = request.getSession(false);
     if (sesion == null || sesion.getAttribute("usuarioId") == null) {
         response.sendRedirect("login.jsp");
@@ -21,7 +19,6 @@
     String adminNombre = (String) sesion.getAttribute("usuarioNombre");
     if (adminNombre == null) adminNombre = "Admin";
 
-    // 🔹 Obtener datos desde el servlet
     Map<String,Integer> reservasPorEstado = (Map<String,Integer>) request.getAttribute("reservasPorEstado");
     Map<String,Integer> reservasPorRecurso = (Map<String,Integer>) request.getAttribute("reservasPorRecurso");
     Map<String,Integer> reservasPorTipo = (Map<String,Integer>) request.getAttribute("reservasPorTipo");
@@ -40,31 +37,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administrador - Reportes</title>
 
-  <!-- Bootstrap y Font Awesome -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- CSS personalizados -->
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/admin-panel.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/sub_menuadmin.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
+
+  <style>
+      .pagination-container {
+          text-align: center;
+          margin-top: 20px;
+      }
+      .pagination button {
+          margin: 3px;
+          padding: 6px 12px;
+          border: none;
+          background: #00482B;
+          color: white;
+          border-radius: 5px;
+      }
+      .pagination button.active {
+          background: #79C000;
+      }
+  </style>
 </head>
 
 <body>
 
-<!-- 🔹 Navbar Administrador -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="ListaReservasServlet">SistemaReserva</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" 
-            data-target="#navbarNav" aria-controls="navbarNav" 
-            aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+            data-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
+
         <ul class="navbar-nav mr-auto">
             <li class="nav-item"><a class="nav-link" href="ListaReservasServlet">📋 Reservas</a></li>
             <li class="nav-item"><a class="nav-link" href="ListaRecursosServlet">⚙️ Recursos</a></li>
@@ -72,20 +82,16 @@
             <li class="nav-item"><a class="nav-link active" href="ReporteServlet">📊 Reportes</a></li>
         </ul>
 
-        <span class="navbar-text text-white mr-3">
-            👤 <%= adminNombre %>
-        </span>
+        <span class="navbar-text text-white mr-3">👤 <%= adminNombre %></span>
         <a href="LogoutServlet" class="btn btn-sm btn-outline-light">Cerrar Sesión</a>
     </div>
 </nav>
 
-<!-- Botón menú móvil -->
 <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
 <div class="container-fluid">
-  <div class="row" style="margin-right: -20px;">
+  <div class="row">
 
-    <!-- 🔹 Menú lateral -->
     <nav class="col-md-2 side-menu" id="sideMenu">
         <h4><i class="fas fa-cogs"></i> Administración</h4>
         <a href="UsuarioServlet?action=listar"><i class="fas fa-users"></i> Usuarios</a>
@@ -101,33 +107,29 @@
         <a href="ReporteServlet" class="active"><i class="fas fa-chart-bar"></i> Reportes</a>
     </nav>
 
-    <!-- 🔹 Contenido principal -->
     <main class="col-md-10 content-area">
 
         <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
 
-        <!-- 🔹 Formulario filtros -->
+        <!-- FILTROS -->
         <form action="ReporteServlet" method="get" class="mb-4">
-            <div class="row">
+            <div class="form-row">
 
-                <!-- Fecha inicio -->
-                <div class="col-md-6 mb-3">
-                    <label for="fechaInicio">Fecha Inicio</label>
-                    <input type="date" id="fechaInicio" name="fechaInicio" class="form-control"
-                           value="<%= v(request.getAttribute("fechaInicio")) %>">
+                <div class="col-md-3">
+                    <label>Fecha Inicio</label>
+                    <input type="date" name="fechaInicio" class="form-control"
+                        value="<%= v(request.getAttribute("fechaInicio")) %>">
                 </div>
 
-                <!-- Fecha fin -->
-                <div class="col-md-6 mb-3">
-                    <label for="fechaFin">Fecha Fin</label>
-                    <input type="date" id="fechaFin" name="fechaFin" class="form-control"
-                           value="<%= v(request.getAttribute("fechaFin")) %>">
+                <div class="col-md-3">
+                    <label>Fecha Fin</label>
+                    <input type="date" name="fechaFin" class="form-control"
+                        value="<%= v(request.getAttribute("fechaFin")) %>">
                 </div>
 
-                <!-- Tipo -->
-                <div class="col-md-6 mb-3">
-                    <label for="tipo">Tipo de espacio</label>
-                    <select id="tipo" name="tipo" class="form-control">
+                <div class="col-md-3">
+                    <label>Tipo</label>
+                    <select name="tipo" class="form-control">
                         <option value="">Todos</option>
                         <option value="SALON" <%= "SALON".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Salón</option>
                         <option value="LABORATORIO" <%= "LABORATORIO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Laboratorio</option>
@@ -135,115 +137,97 @@
                     </select>
                 </div>
 
-                <!-- Estado -->
-                <div class="col-md-6 mb-3">
-                    <label for="estado">Estado</label>
-                    <select id="estado" name="estado" class="form-control">
+                <div class="col-md-3">
+                    <label>Estado</label>
+                    <select name="estado" class="form-control">
                         <option value="">Todos</option>
                         <option value="ACTIVO" <%= "ACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Activo</option>
                         <option value="INACTIVO" <%= "INACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Inactivo</option>
                     </select>
                 </div>
 
-                <!-- Botones -->
-                <div class="col-md-12 text-right mt-3">
-                  <button type="submit" class="btn btn-success">
-                    <i class="fas fa-search"></i> Generar Reporte
-                  </button>
-
-                  <!-- Exportar PDF -->
-                  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=pdf
-                    &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
-                    &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
-                    &tipo=<%= v(request.getAttribute("tipo")) %>
-                    &estado=<%= v(request.getAttribute("estado")) %>"
-                     class="btn btn-danger ml-2">
-                    <i class="fas fa-file-pdf"></i> Exportar PDF
-                  </a>
-
-                  <!-- Exportar Excel -->
-                  <a href="<%= request.getContextPath() %>/ReporteExportServlet?tipo=excel
-                    &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
-                    &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
-                    &tipo=<%= v(request.getAttribute("tipo")) %>
-                    &estado=<%= v(request.getAttribute("estado")) %>"
-                     class="btn btn-primary ml-2">
-                    <i class="fas fa-file-excel"></i> Exportar Excel
-                  </a>
-
-                </div>
-
             </div>
+
+            <div class="text-right mt-3">
+              <button class="btn btn-success"><i class="fas fa-search"></i> Generar</button>
+
+              <a href="ReporteExportServlet?tipo=pdf&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipo=<%=v(request.getAttribute("tipo"))%>&estado=<%=v(request.getAttribute("estado"))%>"
+                 class="btn btn-danger ml-2"><i class="fas fa-file-pdf"></i> PDF</a>
+
+              <a href="ReporteExportServlet?tipo=excel&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipo=<%=v(request.getAttribute("tipo"))%>&estado=<%=v(request.getAttribute("estado"))%>"
+                 class="btn btn-primary ml-2"><i class="fas fa-file-excel"></i> Excel</a>
+            </div>
+
         </form>
 
-        <!-- 🔹 Gráficas 3 en fila -->
-        <div class="row text-center" style="margin-top:20px;">
-
-            <!-- Gráfico Estado -->
+        <!-- GRÁFICOS -->
+        <div class="row text-center">
             <div class="col-md-4">
-                <h6><i class="bi bi-pie-chart"></i> Por Estado</h6>
+                <h6>Por Estado</h6>
                 <canvas id="chartEstado" style="max-height:200px;"></canvas>
             </div>
 
-            <!-- Gráfico Recurso -->
             <div class="col-md-4">
-                <h6><i class="bi bi-bar-chart-line"></i> Por Recurso</h6>
+                <h6>Por Recurso</h6>
                 <canvas id="chartRecurso" style="max-height:200px;"></canvas>
             </div>
 
-            <!-- Gráfico Tipo -->
             <div class="col-md-4">
-                <h6><i class="bi bi-diagram-3"></i> Por Tipo de Espacio</h6>
+                <h6>Por Tipo</h6>
                 <canvas id="chartTipo" style="max-height:200px;"></canvas>
             </div>
-
         </div>
 
-        <!-- 🔹 Tabla -->
+        <!-- TABLA + MENSAJE + PAGINACIÓN -->
+        <%
+            if (!listaRecursos.isEmpty()) {
+        %>
+
         <div class="rf-table-section mt-4">
-          <table class="table table-striped table-bordered">
+          <table id="tablaRecursos" class="table table-striped table-bordered">
             <thead class="thead-dark">
               <tr>
                 <th>Nombre</th>
                 <th>Tipo</th>
                 <th>Estado</th>
                 <th>Tarifa (COP)</th>
-                <th>Disponible</th>
                 <th>Ubicación</th>
               </tr>
             </thead>
             <tbody>
-              <%
-                if (!listaRecursos.isEmpty()) {
-                    for (Map<String,Object> fila : listaRecursos) {
-              %>
+              <% for (Map<String,Object> fila : listaRecursos) { %>
               <tr>
                 <td><%= fila.get("nombre") %></td>
                 <td><%= fila.get("tipo") %></td>
                 <td><%= fila.get("estado") %></td>
                 <td><%= fila.get("tarifa") %></td>
-                <td><%= "ACTIVO".equalsIgnoreCase(v(fila.get("estado"))) ? "Sí" : "No" %></td>
                 <td><%= fila.get("ubicacion") %></td>
-              </tr>
-              <% }} else { %>
-              <tr>
-                <td colspan="6" class="text-center text-muted">No hay datos disponibles</td>
               </tr>
               <% } %>
             </tbody>
           </table>
         </div>
 
+        <div class="pagination-container">
+            <div id="pagination" class="pagination"></div>
+        </div>
+
+        <% } else { %>
+
+        <div class="text-center mt-5 mb-5" style="padding:40px;">
+            <i class="fas fa-database" style="font-size:55px; color:#00482B;"></i>
+            <h4 class="mt-3" style="color:#00482B; font-weight:bold;">No hay datos para mostrar</h4>
+            <p class="text-muted" style="font-size:14px;">Ajusta los filtros para obtener resultados.</p>
+        </div>
+
+        <% } %>
+
     </main>
   </div>
 </div>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Gráfico Estado -->
 <script>
     const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
     const dataEstado   = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
@@ -254,15 +238,12 @@
         labels: labelsEstado,
         datasets: [{
           data: dataEstado,
-          backgroundColor: ['#79C000', '#FBE122', '#00482B', '#DC3545'],
-          borderWidth: 0
+          backgroundColor: ['#79C000','#00482B','#FBE122','#DC3545']
         }]
-      },
-      options: { plugins: { legend: { position: 'bottom' } } }
+      }
     });
 </script>
 
-<!-- Gráfico Recurso -->
 <script>
     const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
     const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
@@ -272,22 +253,14 @@
       data: {
         labels: labelsRecurso,
         datasets: [{
-          label: 'Reservas',
           data: dataRecurso,
           backgroundColor: '#007B3E',
           borderRadius: 6
         }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
       }
     });
 </script>
 
-<!-- Gráfico Tipo -->
 <script>
     const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
     const dataTipo   = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
@@ -298,23 +271,40 @@
         labels: labelsTipo,
         datasets: [{
           data: dataTipo,
-          backgroundColor: ['#79C000','#007B3E','#00482B','#FBE122','#DAAA00'],
-          borderWidth: 0
+          backgroundColor: ['#79C000','#007B3E','#00482B','#FBE122','#DAAA00']
         }]
-      },
-      options: { plugins: { legend: { position: 'bottom' } } }
+      }
     });
 </script>
 
-<!-- Menú móvil -->
+<!-- PAGINACIÓN -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const menuToggle = document.getElementById('menuToggle');
-    const sideMenu = document.getElementById('sideMenu');
-    if (menuToggle && sideMenu) {
-      menuToggle.addEventListener('click', () => sideMenu.classList.toggle('active'));
+    const rowsPerPage = 3;
+    const table = document.getElementById("tablaRecursos");
+    if (table) {
+        const rows = table.querySelectorAll("tbody tr");
+        const pageCount = Math.ceil(rows.length / rowsPerPage);
+        const pagination = document.getElementById("pagination");
+
+        function showPage(page) {
+            rows.forEach((r, i) => {
+                r.style.display = (i >= (page-1)*rowsPerPage && i < page*rowsPerPage) ? "" : "none";
+            });
+
+            document.querySelectorAll(".pagination button").forEach(btn => btn.classList.remove("active"));
+            document.getElementById("btn" + page).classList.add("active");
+        }
+
+        for (let i = 1; i <= pageCount; i++) {
+            let btn = document.createElement("button");
+            btn.id = "btn" + i;
+            btn.innerText = i;
+            btn.onclick = () => showPage(i);
+            pagination.appendChild(btn);
+        }
+
+        showPage(1);
     }
-  });
 </script>
 
 </body>
