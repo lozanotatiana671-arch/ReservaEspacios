@@ -49,44 +49,42 @@ public class TestimonioDAO {
         }
     }
 
-
     // 🔹 Listar todos los testimonios (con nombre del recurso)
-// 🔹 Listar todos los testimonios (con nombre del recurso)
-public List<Testimonio> listar() {
-    List<Testimonio> lista = new ArrayList<>();
+    public List<Testimonio> listar() {
+        List<Testimonio> lista = new ArrayList<>();
 
-    String sql = "SELECT t.id, t.usuario_id, u.nombre AS usuarioNombre, "
-               + "t.mensaje, t.estado, "
-               + "TO_CHAR(t.fecha, 'YYYY-MM-DD HH24:MI') AS fecha, "
-               + "r.nombre AS recursoNombre "
-               + "FROM testimonios t "
-               + "JOIN usuarios u ON t.usuario_id = u.id "
-               + "LEFT JOIN recursos r ON t.recurso_id = r.id "
-               + "ORDER BY t.fecha DESC";
+        String sql = "SELECT t.id, t.usuario_id, u.nombre AS usuarioNombre, "
+                   + "t.mensaje, t.estado, "
+                   + "TO_CHAR(t.fecha, 'YYYY-MM-DD HH24:MI') AS fecha, "
+                   + "r.nombre AS recursoNombre "
+                   + "FROM testimonios t "
+                   + "JOIN usuarios u ON t.usuario_id = u.id "
+                   + "LEFT JOIN recursos r ON t.recurso_id = r.id "
+                   + "ORDER BY t.fecha DESC";
 
-    try (Connection con = ConexionDB.getConnection();
-         PreparedStatement ps = con.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            Testimonio t = new Testimonio();
-            t.setId(rs.getInt("id"));
-            t.setUsuarioId(rs.getInt("usuario_id"));
-            t.setUsuarioNombre(rs.getString("usuarioNombre"));
-            t.setMensaje(rs.getString("mensaje"));
-            t.setEstado(rs.getString("estado"));
-            t.setFecha(rs.getString("fecha"));
-            t.setRecursoNombre(rs.getString("recursoNombre"));
+            while (rs.next()) {
+                Testimonio t = new Testimonio();
+                t.setId(rs.getInt("id"));
+                t.setUsuarioId(rs.getInt("usuario_id"));
+                t.setUsuarioNombre(rs.getString("usuarioNombre"));
+                t.setMensaje(rs.getString("mensaje"));
+                t.setEstado(rs.getString("estado"));
+                t.setFecha(rs.getString("fecha"));
+                t.setRecursoNombre(rs.getString("recursoNombre"));
 
-            lista.add(t);
+                lista.add(t);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        return lista;
     }
-
-    return lista;
-}
 
     // 🔹 Cambiar estado (Aprobado / Pendiente)
     public boolean cambiarEstado(int id, String estado) {
@@ -169,8 +167,7 @@ public List<Testimonio> listar() {
                 t.setMensaje(rs.getString("mensaje"));
                 t.setEstado(rs.getString("estado"));
                 t.setFecha(rs.getString("fecha"));
-                String nombreRecurso = rs.getString("recursoNombre");
-                t.setRecursoNombre(nombreRecurso);
+                t.setRecursoNombre(rs.getString("recursoNombre"));
                 lista.add(t);
             }
 
@@ -179,6 +176,24 @@ public List<Testimonio> listar() {
         }
         return lista;
     }
+
+    // ============================================================
+    // 🔎 MÉTODO QUE FALTABA (ESTE ES EL QUE ROMPÍA LA COMPILACIÓN)
+    // ============================================================
+    public int obtenerUsuarioIdPorTestimonio(int testimonioId) {
+        String sql = "SELECT usuario_id FROM testimonios WHERE id = ?";
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, testimonioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("usuario_id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // No encontrado
+    }
 }
-
-
