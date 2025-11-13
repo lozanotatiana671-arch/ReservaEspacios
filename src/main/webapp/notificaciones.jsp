@@ -12,11 +12,11 @@
     int usuarioId = (int) sesion.getAttribute("usuarioId");
     String usuarioNombre = (String) sesion.getAttribute("usuarioNombre");
 
-    // 🔹 Cargar notificaciones desde la SESIÓN (NO desde request)
-    List<Notificacion> notificaciones = (List<Notificacion>) sesion.getAttribute("notificaciones");
+    // 🔹 Cargar notificaciones DESDE REQUEST (como antes)
+    List<Notificacion> notificaciones = (List<Notificacion>) request.getAttribute("notificaciones");
     if (notificaciones == null) notificaciones = new ArrayList<>();
 
-    Integer notificacionesCount = (Integer) sesion.getAttribute("notificacionesCount");
+    Integer notificacionesCount = (Integer) request.getAttribute("notificacionesCount");
     if (notificacionesCount == null) notificacionesCount = notificaciones.size();
 
     // 🔹 Parámetros de paginación
@@ -29,7 +29,6 @@
     int totalPages = (int) Math.ceil((double) total / perPage);
     int start = (paginaActual - 1) * perPage;
     int end = Math.min(start + perPage, total);
-
 %>
 
 <!DOCTYPE html>
