@@ -5,7 +5,9 @@ import java.util.*;
 
 public class RecursoDAO {
 
-    // 🔹 Listar todos los recursos
+    // ==========================================================
+    // 🔹 LISTAR TODOS LOS RECURSOS
+    // ==========================================================
     public static List<Recurso> listar() throws SQLException {
         List<Recurso> lista = new ArrayList<>();
         String sql = "SELECT * FROM recursos ORDER BY id";
@@ -24,24 +26,24 @@ public class RecursoDAO {
                 r.setTarifa(rs.getDouble("tarifa"));
                 r.setImagen(rs.getString("imagen"));
 
-                // Campos opcionales
                 try { r.setUbicacion(rs.getString("ubicacion")); } catch (SQLException e) {}
                 try { r.setCapacidad(rs.getInt("capacidad")); } catch (SQLException e) {}
 
-                // Estado disponible
                 r.setDisponible("DISPONIBLE".equalsIgnoreCase(r.getEstado()));
 
                 lista.add(r);
             }
         }
 
-        // 🔹 Cargar promedios y total de reseñas
+        // ⭐ Cargar valoraciones
         agregarValoracionesARecursos(lista);
 
         return lista;
     }
 
-    // 🔹 Insertar nuevo recurso
+    // ==========================================================
+    // 🔹 INSERTAR RECURSO
+    // ==========================================================
     public static void insertar(Recurso r) throws SQLException {
         String sql = "INSERT INTO recursos (nombre, descripcion, tipo, estado, tarifa, imagen, ubicacion, capacidad) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -57,12 +59,13 @@ public class RecursoDAO {
             ps.setString(6, r.getImagen());
             ps.setString(7, r.getUbicacion());
             ps.setInt(8, r.getCapacidad());
-
             ps.executeUpdate();
         }
     }
 
-    // 🔹 Actualizar recurso
+    // ==========================================================
+    // 🔹 ACTUALIZAR RECURSO
+    // ==========================================================
     public static void actualizar(Recurso r) throws SQLException {
         String sql = "UPDATE recursos SET nombre=?, descripcion=?, tipo=?, estado=?, tarifa=?, imagen=?, ubicacion=?, capacidad=? WHERE id=?";
 
@@ -83,7 +86,9 @@ public class RecursoDAO {
         }
     }
 
-    // 🔹 Eliminar recurso
+    // ==========================================================
+    // 🔹 ELIMINAR RECURSO
+    // ==========================================================
     public static void eliminar(int id) throws SQLException {
         String sql = "DELETE FROM recursos WHERE id=?";
 
@@ -95,7 +100,9 @@ public class RecursoDAO {
         }
     }
 
-    // 🔹 Listar recursos disponibles en fecha y hora
+    // ==========================================================
+    // 🔹 LISTAR DISPONIBLES (versión simplificada)
+    // ==========================================================
     public static List<Recurso> listarDisponibles(String fecha, String hora) throws SQLException {
         List<Recurso> lista = new ArrayList<>();
 
@@ -104,9 +111,8 @@ public class RecursoDAO {
             "FROM recursos r WHERE r.estado = 'ACTIVO'";
 
         try (Connection con = ConexionDB.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ResultSet rs = ps.executeQuery();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Recurso r = new Recurso();
@@ -129,7 +135,7 @@ public class RecursoDAO {
     }
 
     // ==========================================================
-    // ⭐ NUEVO: Cargar promedios reales de los testimonios
+    // ⭐ CARGAR PROMEDIOS Y TOTAL DE RESEÑAS
     // ==========================================================
     private static void agregarValoracionesARecursos(List<Recurso> recursos) {
         if (recursos == null || recursos.isEmpty()) return;
@@ -145,14 +151,14 @@ public class RecursoDAO {
             Map<Integer, double[]> mapa = new HashMap<>();
 
             while (rs.next()) {
-                int idRecurso = rs.getInt("recurso_id");   // ✔ NOMBRE CORRECTO
+                int id = rs.getInt("recurso_id");
                 double promedio = rs.getDouble("promedio");
                 int total = rs.getInt("total");
 
-                mapa.put(idRecurso, new double[]{promedio, total});
+                mapa.put(id, new double[]{promedio, total});
             }
 
-            // 🔹 Inyectar valores en cada recurso
+            // Inyectar datos
             for (Recurso r : recursos) {
                 if (mapa.containsKey(r.getId())) {
                     double[] v = mapa.get(r.getId());
@@ -166,7 +172,31 @@ public class RecursoDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("⚠️ Error al calcular promedios: " + e.getMessage());
         }
+    }
+
+    // ==========================================================
+    // 🔹 OBTENER FECHAS CON RESERVAS (NECESARIO PARA INDEX.JSP)
+    // ==========================================================
+    public static Set<String> obtenerFechasConReservas() throws SQLException {
+        Set<String> fechasOcupadas = new HashSet<>();
+
+        String sql =
+            "SELECT DISTINCT TO_CHAR(TRUNC(fecha), 'YYYY-MM-DD') AS fecha_reserva " +
+            "FROM reservas WHERE UPPER(estado) IN ('APROBADA', 'PRESTADO', 'PENDIENTE')";
+
+        try (Connection con = ConexionDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String fecha = rs.getString("fecha_reserva");
+                if (fecha != null && !fecha.isBlank()) {
+                    fechasOcupadas.add(fecha.trim());
+                }
+            }
+        }
+
+        return fechasOcupadas;
     }
 }
