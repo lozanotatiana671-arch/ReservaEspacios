@@ -25,10 +25,9 @@ public class NotificacionFilter implements Filter {
             List<Notificacion> notifs = dao.listarPorUsuario(usuarioId);
             int count = dao.contarNoLeidas(usuarioId);
 
-            // 🔥 CORRECCIÓN IMPORTANTE:
-            // Guardamos en SESIÓN porque el request se pierde entre redirecciones.
-            session.setAttribute("notificaciones", notifs);
-            session.setAttribute("notificacionesCount", count);
+            // ⬅️ LO IMPORTANTE: Volvemos a usar REQUEST (como antes)
+            req.setAttribute("notificaciones", notifs);
+            req.setAttribute("notificacionesCount", count);
         }
 
         chain.doFilter(request, response);
