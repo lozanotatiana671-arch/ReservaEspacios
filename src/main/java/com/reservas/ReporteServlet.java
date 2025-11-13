@@ -48,7 +48,8 @@ public class ReporteServlet extends HttpServlet {
             boolean tieneFecha = fechaInicio != null && !fechaInicio.isEmpty()
                               && fechaFin != null && !fechaFin.isEmpty();
 
-            String filtroFecha = tieneFecha ? " WHERE r.fecha BETWEEN ? AND ? " : "";
+            // 🔹 AHORA CORRECTO PARA POSTGRESQL
+            String filtroFecha = tieneFecha ? " WHERE r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) " : "";
 
             // =====================================================
             // 🔵 1. Reservas por Estado
@@ -77,7 +78,7 @@ public class ReporteServlet extends HttpServlet {
                 "SELECT rc.nombre AS recurso, COUNT(*) AS total " +
                 "FROM reservas r " +
                 "JOIN recursos rc ON r.recurso_id = rc.id " +
-                (tieneFecha ? " WHERE r.fecha BETWEEN ? AND ? " : "") +
+                (tieneFecha ? " WHERE r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) " : "") +
                 "GROUP BY rc.nombre ORDER BY total DESC";
 
             try (PreparedStatement ps = con.prepareStatement(sqlRecurso)) {
@@ -98,7 +99,7 @@ public class ReporteServlet extends HttpServlet {
                 "SELECT u.nombre AS usuario, COUNT(*) AS total " +
                 "FROM reservas r " +
                 "JOIN usuarios u ON r.usuario_id = u.id " +
-                (tieneFecha ? " WHERE r.fecha BETWEEN ? AND ? " : "") +
+                (tieneFecha ? " WHERE r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) " : "") +
                 "GROUP BY u.nombre ORDER BY total DESC";
 
             try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
@@ -123,7 +124,7 @@ public class ReporteServlet extends HttpServlet {
             List<Object> params = new ArrayList<>();
 
             if (tieneFecha) {
-                sqlR.append(" AND r.fecha BETWEEN ? AND ? ");
+                sqlR.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
                 params.add(fechaInicio);
                 params.add(fechaFin);
             }
