@@ -181,12 +181,13 @@
         "FINALIZADA".equalsIgnoreCase(estadoReserva) ||
         "FINALIZADO".equalsIgnoreCase(estadoReserva)) {
 %>
-    <form action="testimonio.jsp" method="get" style="display:inline;">
+<form action="testimonio.jsp" method="get" style="display:inline;">
     <input type="hidden" name="recursoId" value="<%= r.getRecursoId() %>">
     <button type="submit" class="action-btn btn-testimonio">
         <i class="fas fa-comment"></i> Testimonio
     </button>
 </form>
+
 
 <% } %>
 
