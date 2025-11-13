@@ -47,6 +47,11 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/admin-panel.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/sub_menuadmin.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
+
   <style>
       .pagination-container { text-align: center; margin-top: 20px; }
       .pagination button {
@@ -59,168 +64,204 @@
       }
       .pagination button.active { background: #79C000; }
 
-      /* Tabla con paleta corporativa */
       table thead { background-color: #00482B; color: white; }
       table tbody tr:hover { background-color: #E8F5E9; }
 
-      .mensaje-central {
-          padding:40px;
-          text-align:center;
-      }
+      .mensaje-central { padding:40px; text-align:center; }
   </style>
 </head>
 
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="ListaReservasServlet">SistemaReserva</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span></button>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" 
+            data-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
 
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item"><a class="nav-link" href="ListaReservasServlet">Reservas</a></li>
-            <li class="nav-item"><a class="nav-link" href="ListaRecursosServlet">Recursos</a></li>
-            <li class="nav-item"><a class="nav-link" href="UsuarioServlet?action=listar">Usuarios</a></li>
-            <li class="nav-item"><a class="nav-link active" href="ReporteServlet">Reportes</a></li>
+            <li class="nav-item"><a class="nav-link" href="ListaReservasServlet">📋 Reservas</a></li>
+            <li class="nav-item"><a class="nav-link" href="ListaRecursosServlet">⚙️ Recursos</a></li>
+            <li class="nav-item"><a class="nav-link" href="UsuarioServlet?action=listar">👤 Usuarios</a></li>
+            <li class="nav-item"><a class="nav-link active" href="ReporteServlet">📊 Reportes</a></li>
         </ul>
 
         <span class="navbar-text text-white mr-3">👤 <%= adminNombre %></span>
-        <a href="LogoutServlet" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+        <a href="LogoutServlet" class="btn btn-sm btn-outline-light">Cerrar Sesión</a>
     </div>
 </nav>
 
-<div class="container-fluid mt-3">
-  <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
+<!-- BOTÓN MENÚ MÓVIL -->
+<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
-  <!-- FILTROS -->
-  <form action="ReporteServlet" method="get" class="mb-4">
-      <div class="form-row">
+<div class="container-fluid">
+  <div class="row">
 
-          <div class="col-md-3">
-              <label>Fecha Inicio</label>
-              <input type="date" name="fechaInicio" class="form-control"
-                     value="<%= v(request.getAttribute("fechaInicio")) %>">
-          </div>
+    <!-- ⭐⭐⭐ MENÚ LATERAL ORIGINAL COMPLETO ⭐⭐⭐ -->
+    <nav class="col-md-2 side-menu" id="sideMenu">
+        <h4><i class="fas fa-cogs"></i> Administración</h4>
+        
+        <a href="UsuarioServlet?action=listar"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="configuracion.jsp"><i class="fas fa-cog"></i> Configuración</a>
+        <a href="BannerServlet"><i class="fas fa-image"></i> Banner</a>
 
-          <div class="col-md-3">
-              <label>Fecha Fin</label>
-              <input type="date" name="fechaFin" class="form-control"
-                     value="<%= v(request.getAttribute("fechaFin")) %>">
-          </div>
+        <hr>
 
-          <div class="col-md-3">
-              <label>Tipo</label>
-              <select name="tipoEspacio" class="form-control">
-                  <option value="">Todos</option>
-                  <option value="SALON">Salón</option>
-                  <option value="LABORATORIO">Laboratorio</option>
-                  <option value="EQUIPO">Equipo</option>
-              </select>
-          </div>
+        <a href="ListaReservasServlet"><i class="fas fa-calendar-check"></i> Gestionar Reservas</a>
+        <a href="TestimonioServlet?action=listar"><i class="fas fa-comment-alt"></i> Gestionar Testimonios</a>
+        <a href="ListaConsultasServlet?action=listar"><i class="fas fa-envelope"></i> Gestionar Consultas</a>
 
-          <div class="col-md-3">
-              <label>Estado</label>
-              <select name="estadoRecurso" class="form-control">
-                  <option value="">Todos</option>
-                  <option value="ACTIVO">Activo</option>
-                  <option value="INACTIVO">Inactivo</option>
-              </select>
-          </div>
+        <hr>
 
-      </div>
+        <a href="nuevoRecurso.jsp"><i class="fas fa-plus-circle"></i> Nuevo Espacio</a>
+        <a href="ListaRecursosServlet?action=listar"><i class="fas fa-building"></i> Gestionar Espacios</a>
 
-      <div class="text-right mt-3">
-          <button class="btn btn-success"><i class="fas fa-search"></i> Generar</button>
+        <a href="ReporteServlet" class="active">
+            <i class="fas fa-chart-bar"></i> Reportes
+        </a>
+    </nav>
 
-          <a class="btn btn-danger ml-2"
-             href="ReporteExportServlet?tipo=pdf&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
-             <i class="fas fa-file-pdf"></i> PDF</a>
+    <!-- CONTENIDO -->
+    <main class="col-md-10 content-area">
 
-          <a class="btn btn-primary ml-2"
-             href="ReporteExportServlet?tipo=excel&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
-             <i class="fas fa-file-excel"></i> Excel</a>
-      </div>
-  </form>
+        <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
 
-  <!-- ⭐ MENSAJE SI NO HAY FILTROS -->
-  <% if (sinFiltros) { %>
+        <!-- FILTROS -->
+        <form action="ReporteServlet" method="get" class="mb-4">
+            <div class="form-row">
 
-      <div class="mensaje-central">
-          <i class="fas fa-info-circle" style="font-size:55px; color:#00482B;"></i>
-          <h4 class="mt-3" style="color:#00482B; font-weight:bold;">
-              Selecciona al menos un filtro para generar el reporte
-          </h4>
-          <p class="text-muted">Puedes filtrar por fecha, tipo o estado.</p>
-      </div>
+                <div class="col-md-3">
+                    <label>Fecha Inicio</label>
+                    <input type="date" name="fechaInicio" class="form-control"
+                           value="<%= v(request.getAttribute("fechaInicio")) %>">
+                </div>
 
-  <% } else { %>
+                <div class="col-md-3">
+                    <label>Fecha Fin</label>
+                    <input type="date" name="fechaFin" class="form-control"
+                           value="<%= v(request.getAttribute("fechaFin")) %>">
+                </div>
 
-      <!-- GRÁFICOS -->
-      <div class="row text-center mt-4">
-          <div class="col-md-4">
-              <h6>Por Estado</h6>
-              <canvas id="chartEstado"></canvas>
-          </div>
-          <div class="col-md-4">
-              <h6>Por Recurso</h6>
-              <canvas id="chartRecurso"></canvas>
-          </div>
-          <div class="col-md-4">
-              <h6>Por Tipo</h6>
-              <canvas id="chartTipo"></canvas>
-          </div>
-      </div>
+                <div class="col-md-3">
+                    <label>Tipo</label>
+                    <select name="tipoEspacio" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="SALON">Salón</option>
+                        <option value="LABORATORIO">Laboratorio</option>
+                        <option value="EQUIPO">Equipo</option>
+                    </select>
+                </div>
 
-      <% if (!listaRecursos.isEmpty()) { %>
+                <div class="col-md-3">
+                    <label>Estado</label>
+                    <select name="estadoRecurso" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="ACTIVO">Activo</option>
+                        <option value="INACTIVO">Inactivo</option>
+                    </select>
+                </div>
 
-      <!-- TABLA -->
-      <div class="mt-4">
-        <table id="tablaRecursos" class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Estado</th>
-                <th>Tarifa</th>
-                <th>Ubicación</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% for (Map<String,Object> fila : listaRecursos) { %>
-              <tr>
-                <td><%= fila.get("nombre") %></td>
-                <td><%= fila.get("tipo") %></td>
-                <td><%= fila.get("estado") %></td>
-                <td><%= fila.get("tarifa") %></td>
-                <td><%= fila.get("ubicacion") %></td>
-              </tr>
-              <% } %>
-            </tbody>
-        </table>
-      </div>
+            </div>
 
-      <!-- PAGINACIÓN -->
-      <div class="pagination-container">
-          <div id="pagination" class="pagination"></div>
-      </div>
+            <div class="text-right mt-3">
+              <button class="btn btn-success"><i class="fas fa-search"></i> Generar</button>
 
-      <% } else { %>
+              <a class="btn btn-danger ml-2"
+                 href="ReporteExportServlet?tipo=pdf&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
+                     <i class="fas fa-file-pdf"></i> PDF
+              </a>
 
-      <div class="mensaje-central">
-          <i class="fas fa-database" style="font-size:55px; color:#00482B;"></i>
-          <h4 class="mt-3" style="color:#00482B; font-weight:bold;">No hay datos para mostrar</h4>
-          <p class="text-muted">Prueba ajustando los filtros.</p>
-      </div>
+              <a class="btn btn-primary ml-2"
+                 href="ReporteExportServlet?tipo=excel&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
+                     <i class="fas fa-file-excel"></i> Excel
+              </a>
+            </div>
 
-      <% } %>
-  <% } %>
+        </form>
 
+        <!-- ⭐ MENSAJE CUANDO NO HAY FILTROS ⭐ -->
+        <% if (sinFiltros) { %>
+
+            <div class="mensaje-central">
+                <i class="fas fa-info-circle" style="font-size:55px; color:#00482B;"></i>
+                <h4 style="color:#00482B; font-weight:bold;">Selecciona al menos un filtro</h4>
+                <p class="text-muted">Para visualizar datos del sistema.</p>
+            </div>
+
+        <% } else { %>
+
+            <!-- GRÁFICAS -->
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <h6>Por Estado</h6>
+                    <canvas id="chartEstado"></canvas>
+                </div>
+
+                <div class="col-md-4">
+                    <h6>Por Recurso</h6>
+                    <canvas id="chartRecurso"></canvas>
+                </div>
+
+                <div class="col-md-4">
+                    <h6>Por Tipo</h6>
+                    <canvas id="chartTipo"></canvas>
+                </div>
+            </div>
+
+            <% if (!listaRecursos.isEmpty()) { %>
+
+            <!-- TABLA -->
+            <div class="mt-4">
+                <table id="tablaRecursos" class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Tarifa (COP)</th>
+                        <th>Ubicación</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% for (Map<String,Object> fila : listaRecursos) { %>
+                      <tr>
+                        <td><%= fila.get("nombre") %></td>
+                        <td><%= fila.get("tipo") %></td>
+                        <td><%= fila.get("estado") %></td>
+                        <td><%= fila.get("tarifa") %></td>
+                        <td><%= fila.get("ubicacion") %></td>
+                      </tr>
+                      <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓN -->
+            <div class="pagination-container">
+                <div id="pagination" class="pagination"></div>
+            </div>
+
+            <% } else { %>
+
+            <div class="mensaje-central">
+                <i class="fas fa-database" style="font-size:55px; color:#00482B;"></i>
+                <h4 style="color:#00482B; font-weight:bold;">No hay datos</h4>
+                <p class="text-muted">Ajusta los filtros.</p>
+            </div>
+
+            <% } %>
+        <% } %>
+
+    </main>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- CHARTS -->
+<!-- GRÁFICO ESTADO -->
 <script>
     const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
     const dataEstado   = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
@@ -239,6 +280,7 @@
     }
 </script>
 
+<!-- GRÁFICO RECURSO -->
 <script>
     const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
     const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
@@ -258,6 +300,7 @@
     }
 </script>
 
+<!-- GRÁFICO TIPO -->
 <script>
     const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
     const dataTipo   = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
@@ -276,7 +319,7 @@
     }
 </script>
 
-<!-- PAGINACIÓN: SOLO 2 REGISTROS -->
+<!-- PAGINACIÓN (2 filas) -->
 <script>
     const rowsPerPage = 2;
     const table = document.getElementById("tablaRecursos");
@@ -305,6 +348,12 @@
 
         showPage(1);
     }
+</script>
+
+<script>
+document.getElementById("menuToggle").onclick = function() {
+    document.getElementById("sideMenu").classList.toggle("active");
+};
 </script>
 
 </body>
