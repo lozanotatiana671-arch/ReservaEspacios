@@ -32,8 +32,8 @@
     boolean sinFiltros =
         v(request.getAttribute("fechaInicio")).isEmpty() &&
         v(request.getAttribute("fechaFin")).isEmpty() &&
-        v(request.getAttribute("tipoEspacio")).isEmpty() &&
-        v(request.getAttribute("estadoRecurso")).isEmpty();
+        v(request.getAttribute("tipo")).isEmpty() &&
+        v(request.getAttribute("estado")).isEmpty();
 %>
 
 <!DOCTYPE html>
@@ -41,7 +41,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administrador - Reportes</title>
+  <title>Dashboard - Reportes</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -53,7 +53,32 @@
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
 
   <style>
-      .pagination-container { text-align: center; margin-top: 20px; }
+
+      .chart-card {
+          background: white;
+          border-radius: 18px;
+          padding: 22px;
+          margin-bottom: 25px;
+          box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+          text-align:center;
+      }
+
+      .chart-title {
+          font-weight: 700;
+          color:#00482B;
+          font-size:15px;
+          margin-bottom:10px;
+      }
+
+      .chart-small-container {
+          width: 100%;
+          height: 200px;
+      }
+
+      .chart-small-container canvas {
+          max-height: 180px !important;
+      }
+
       .pagination button {
           margin: 4px;
           padding: 6px 12px;
@@ -68,16 +93,6 @@
       table tbody tr:hover { background-color: #E8F5E9; }
 
       .mensaje-central { padding:40px; text-align:center; }
-
-      /* NUEVO: Gráficas pequeñas tipo Power BI */
-      .chart-small-container {
-          width: 100%;
-          height: 180px;
-          padding: 10px;
-      }
-      .chart-small-container canvas {
-          max-height:160px !important;
-      }
   </style>
 </head>
 
@@ -87,8 +102,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="ListaReservasServlet">SistemaReserva</a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" 
-            data-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
 
@@ -104,13 +120,12 @@
     </div>
 </nav>
 
-<!-- BOTÓN MENÚ MÓVIL -->
 <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
 <div class="container-fluid">
   <div class="row">
 
-    <!-- ⭐⭐⭐ MENÚ LATERAL COMPLETO ⭐⭐⭐ -->
+    <!-- MENÚ LATERAL -->
     <nav class="col-md-2 side-menu" id="sideMenu">
         <h4><i class="fas fa-cogs"></i> Administración</h4>
         
@@ -129,15 +144,13 @@
         <a href="nuevoRecurso.jsp"><i class="fas fa-plus-circle"></i> Nuevo Espacio</a>
         <a href="ListaRecursosServlet?action=listar"><i class="fas fa-building"></i> Gestionar Espacios</a>
 
-        <a href="ReporteServlet" class="active">
-            <i class="fas fa-chart-bar"></i> Reportes
-        </a>
+        <a href="ReporteServlet" class="active"><i class="fas fa-chart-bar"></i> Reportes</a>
     </nav>
 
-    <!-- ⭐ CONTENIDO ⭐ -->
+    <!-- CONTENIDO -->
     <main class="col-md-10 content-area">
 
-        <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
+        <h2 class="mt-3 mb-4 text-success"><i class="bi bi-bar-chart"></i> Dashboard de Reportes</h2>
 
         <!-- FILTROS -->
         <form action="ReporteServlet" method="get" class="mb-4" id="formFiltros">
@@ -157,7 +170,7 @@
 
                 <div class="col-md-3">
                     <label>Tipo</label>
-                    <select name="tipoEspacio" class="form-control">
+                    <select name="tipo" class="form-control">
                         <option value="">Todos</option>
                         <option value="SALON">Salón</option>
                         <option value="LABORATORIO">Laboratorio</option>
@@ -167,7 +180,7 @@
 
                 <div class="col-md-3">
                     <label>Estado</label>
-                    <select name="estadoRecurso" class="form-control">
+                    <select name="estado" class="form-control">
                         <option value="">Todos</option>
                         <option value="ACTIVO">Activo</option>
                         <option value="INACTIVO">Inactivo</option>
@@ -177,7 +190,7 @@
             </div>
         </form>
 
-        <!-- ⭐ MENSAJE CUANDO NO HAY FILTROS ⭐ -->
+        <!-- CUANDO NO HAY FILTROS -->
         <% if (sinFiltros) { %>
 
             <div class="mensaje-central">
@@ -188,61 +201,67 @@
 
         <% } else { %>
 
-        <!-- ⭐ GRÁFICAS PEQUEÑAS TIPO POWER BI ⭐ -->
-        <div class="row text-center">
+        <!-- DASHBOARD -->
+        <div class="row">
 
+            <!-- ESTADO -->
             <div class="col-md-4">
-                <h6>Por Estado</h6>
-                <div class="chart-small-container">
-                    <canvas id="chartEstado"></canvas>
+                <div class="chart-card">
+                    <div class="chart-title">Distribución por Estado</div>
+                    <div class="chart-small-container">
+                        <canvas id="chartEstado"></canvas>
+                    </div>
                 </div>
             </div>
 
+            <!-- RECURSO -->
             <div class="col-md-4">
-                <h6>Por Recurso</h6>
-                <div class="chart-small-container">
-                    <canvas id="chartRecurso"></canvas>
+                <div class="chart-card">
+                    <div class="chart-title">Cantidad por Recurso</div>
+                    <div class="chart-small-container">
+                        <canvas id="chartRecurso"></canvas>
+                    </div>
                 </div>
             </div>
 
+            <!-- TIPO -->
             <div class="col-md-4">
-                <h6>Por Tipo</h6>
-                <div class="chart-small-container">
-                    <canvas id="chartTipo"></canvas>
+                <div class="chart-card">
+                    <div class="chart-title">Distribución por Tipo</div>
+                    <div class="chart-small-container">
+                        <canvas id="chartTipo"></canvas>
+                    </div>
                 </div>
             </div>
 
         </div>
-
-        <% if (!listaRecursos.isEmpty()) { %>
 
         <!-- TABLA -->
-        <div class="mt-4">
-            <table id="tablaRecursos" class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Estado</th>
-                    <th>Tarifa (COP)</th>
-                    <th>Ubicación</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% for (Map<String,Object> fila : listaRecursos) { %>
-                  <tr>
-                    <td><%= fila.get("nombre") %></td>
-                    <td><%= fila.get("tipo") %></td>
-                    <td><%= fila.get("estado") %></td>
-                    <td><%= fila.get("tarifa") %></td>
-                    <td><%= fila.get("ubicacion") %></td>
-                  </tr>
-                  <% } %>
-                </tbody>
-            </table>
-        </div>
+        <% if (!listaRecursos.isEmpty()) { %>
 
-        <!-- PAGINACIÓN 2 FILAS -->
+        <table id="tablaRecursos" class="table table-bordered mt-4">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Tarifa (COP)</th>
+                <th>Ubicación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (Map<String,Object> fila : listaRecursos) { %>
+              <tr>
+                <td><%= fila.get("nombre") %></td>
+                <td><%= fila.get("tipo") %></td>
+                <td><%= fila.get("estado") %></td>
+                <td><%= fila.get("tarifa") %></td>
+                <td><%= fila.get("ubicacion") %></td>
+              </tr>
+              <% } %>
+            </tbody>
+        </table>
+
         <div class="pagination-container">
             <div id="pagination" class="pagination"></div>
         </div>
@@ -264,96 +283,136 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- GRÁFICO ESTADO -->
-<script>
-    const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
-    const dataEstado   = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
+<!-- ================================
+     GRÁFICOS POWER BI
+================================ -->
 
-    if (labelsEstado.length > 0) {
-        new Chart(document.getElementById('chartEstado'), {
-          type: 'doughnut',
-          data: {
+<script>
+/* COLores */
+const verde = "#007B3E";
+const verdeClaro = "#79C000";
+const azul = "#1F77B4";
+const amarillo = "#FBE122";
+const rojo = "#DC3545";
+
+/* Plugin total al centro */
+const centerTotal = {
+    id: 'centerTotal',
+    afterDraw(chart) {
+        const total = chart.config.data.datasets[0].data.reduce((a,b)=>a+b,0);
+        const {ctx, chartArea: {left, right, top, bottom}} = chart;
+
+        ctx.save();
+        ctx.font = "bold 18px Arial";
+        ctx.fillStyle = "#00482B";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(total, (left+right)/2, (top+bottom)/2);
+        ctx.restore();
+    }
+};
+
+const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
+const dataEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
+
+if (labelsEstado.length > 0) {
+    new Chart(document.getElementById('chartEstado'), {
+        type: 'doughnut',
+        plugins: [centerTotal],
+        data: {
             labels: labelsEstado,
             datasets: [{
-              data: dataEstado,
-              backgroundColor: ['#79C000','#00482B','#FBE122','#DC3545']
+                data: dataEstado,
+                backgroundColor: [verdeClaro, azul, amarillo, rojo],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
-          }
-        });
-    }
-</script>
+        },
+        options: {
+            cutout: "65%",
+            plugins: { legend: { display: false } }
+        }
+    });
+}
 
-<!-- GRÁFICO RECURSO -->
-<script>
-    const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
-    const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
+/* RECURSO */
+const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
+const dataRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
 
-    if (labelsRecurso.length > 0) {
-        new Chart(document.getElementById('chartRecurso'), {
-          type: 'bar',
-          data: {
+if (labelsRecurso.length > 0) {
+    new Chart(document.getElementById('chartRecurso'), {
+        type: 'bar',
+        data: {
             labels: labelsRecurso,
             datasets: [{
-              data: dataRecurso,
-              backgroundColor: '#007B3E',
-              borderRadius: 6
+                data: dataRecurso,
+                backgroundColor: verde,
+                borderRadius: 12,
+                barThickness: 28
             }]
-          }
-        });
-    }
-</script>
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.05)" }},
+                x: { ticks: { color: "#333" } }
+            }
+        }
+    });
+}
 
-<!-- GRÁFICO TIPO -->
-<script>
-    const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
-    const dataTipo   = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
+/* TIPO */
+const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
+const dataTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
 
-    if (labelsTipo.length > 0) {
-        new Chart(document.getElementById('chartTipo'), {
-          type: 'pie',
-          data: {
+if (labelsTipo.length > 0) {
+    new Chart(document.getElementById('chartTipo'), {
+        type: 'pie',
+        data: {
             labels: labelsTipo,
             datasets: [{
-              data: dataTipo,
-              backgroundColor: ['#79C000','#007B3E','#00482B','#FBE122','#DAAA00']
+                data: dataTipo,
+                backgroundColor: [verdeClaro, azul, amarillo, verde],
+                borderWidth: 0
             }]
-          }
-        });
-    }
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+}
 </script>
 
-<!-- PAGINACIÓN (2 filas) -->
+<!-- PAGINACIÓN -->
 <script>
-    const rowsPerPage = 3;
-    const table = document.getElementById("tablaRecursos");
+const rowsPerPage = 2;
+const table = document.getElementById("tablaRecursos");
 
-    if (table) {
-        const rows = table.querySelectorAll("tbody tr");
-        const pageCount = Math.ceil(rows.length / rowsPerPage);
-        const pagination = document.getElementById("pagination");
+if (table) {
+    const rows = table.querySelectorAll("tbody tr");
+    const pageCount = Math.ceil(rows.length / rowsPerPage);
+    const pagination = document.getElementById("pagination");
 
-        function showPage(page) {
-            rows.forEach((r, i) => {
-                r.style.display = (i >= (page-1)*rowsPerPage && i < page*rowsPerPage) ? "" : "none";
-            });
+    function showPage(page) {
+        rows.forEach((r, i) => {
+            r.style.display = (i >= (page-1)*rowsPerPage && i < page*rowsPerPage) ? "" : "none";
+        });
 
-            document.querySelectorAll(".pagination button").forEach(btn => btn.classList.remove("active"));
-            document.getElementById("btn"+page).classList.add("active");
-        }
-
-        for (let i = 1; i <= pageCount; i++) {
-            let btn = document.createElement("button");
-            btn.id = "btn" + i;
-            btn.innerText = i;
-            btn.onclick = () => showPage(i);
-            pagination.appendChild(btn);
-        }
-
-        showPage(1);
+        document.querySelectorAll(".pagination button").forEach(btn => btn.classList.remove("active"));
+        document.getElementById("btn"+page).classList.add("active");
     }
+
+    for (let i = 1; i <= pageCount; i++) {
+        let btn = document.createElement("button");
+        btn.id = "btn" + i;
+        btn.innerText = i;
+        btn.onclick = () => showPage(i);
+        pagination.appendChild(btn);
+    }
+
+    showPage(1);
+}
 </script>
 
-<!-- AUTO-ENVIAR FORMULARIO AL CAMBIAR FILTRO -->
+<!-- Auto actualizar -->
 <script>
 document.querySelectorAll("#formFiltros input, #formFiltros select")
     .forEach(el => {
