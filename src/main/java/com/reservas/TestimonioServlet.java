@@ -28,7 +28,7 @@ public class TestimonioServlet extends HttpServlet {
         String recursoIdParam = request.getParameter("recursoId");
         String calificacionParam = request.getParameter("calificacion");
 
-        // 🟢 Debug
+        // Debug
         System.out.println("🟢 Usuario ID: " + usuarioId);
         System.out.println("📦 Recurso ID: " + recursoIdParam);
         System.out.println("💬 Mensaje: " + mensaje);
@@ -41,7 +41,7 @@ public class TestimonioServlet extends HttpServlet {
         boolean ok = false;
 
         try {
-            // 🔹 Testimonio con calificación y recurso
+            // Testimonio con calificación
             if (recursoIdParam != null && !recursoIdParam.isEmpty()
                     && calificacionParam != null && !calificacionParam.isEmpty()) {
 
@@ -52,22 +52,19 @@ public class TestimonioServlet extends HttpServlet {
                 t.setCalificacion(calificacion);
 
                 ok = dao.registrarConCalificacion(t);
+
             } else {
-                // 🔹 Testimonio sin calificación
                 ok = dao.registrar(t);
             }
 
-            // ********************************************
-            // 🔔 NOTIFICACIÓN SOLO PARA EL USUARIO (CORREGIDO)
-            // ********************************************
+            // Notificación para el usuario
             if (ok) {
                 try {
-                    Notificacion notificacion = new Notificacion();
-                    notificacion.setUsuarioId(usuarioId); // AHORA SÍ → para el usuario
-                    notificacion.setMensaje("💬 Tu testimonio fue enviado correctamente.");
-                    notificacion.setEstado("NUEVA");
-
-                    new NotificacionDAO().insertar(notificacion);
+                    Notificacion n = new Notificacion();
+                    n.setUsuarioId(usuarioId);
+                    n.setMensaje("💬 Tu testimonio fue enviado correctamente.");
+                    n.setEstado("NUEVA");
+                    new NotificacionDAO().insertar(n);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -78,12 +75,10 @@ public class TestimonioServlet extends HttpServlet {
             ok = false;
         }
 
-        // Mensaje visual al usuario
+        // Mensaje al usuario
         if (ok) {
-            System.out.println("✅ Testimonio guardado correctamente por usuario " + usuarioNombre);
             request.setAttribute("msg", "✅ Tu testimonio fue enviado y está pendiente de aprobación.");
         } else {
-            System.err.println("❌ Error al guardar el testimonio de " + usuarioNombre);
             request.setAttribute("msg", "❌ Error al enviar el testimonio. Intenta nuevamente.");
         }
 
@@ -91,7 +86,7 @@ public class TestimonioServlet extends HttpServlet {
     }
 
     // ============================================================
-    // 🔹 GET: listar, aprobar, rechazar y eliminar testimonios
+    // GET: listar, aprobar, rechazar y eliminar
     // ============================================================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -125,8 +120,13 @@ public class TestimonioServlet extends HttpServlet {
                     response.sendRedirect("perfilUsuario.jsp");
                     return;
                 }
+
                 int idA = Integer.parseInt(request.getParameter("id"));
                 dao.cambiarEstado(idA, "Aprobado");
+
+                // 🔔 Notificación al dueño del testimonio
+                enviarNotificacionCambioEstado(idA, "✨ Tu testimonio ha sido APROBADO por el administrador.");
+
                 response.sendRedirect("TestimonioServlet?action=listar");
                 break;
 
@@ -135,8 +135,13 @@ public class TestimonioServlet extends HttpServlet {
                     response.sendRedirect("perfilUsuario.jsp");
                     return;
                 }
+
                 int idR = Integer.parseInt(request.getParameter("id"));
                 dao.cambiarEstado(idR, "Rechazado");
+
+                // 🔔 Notificación al dueño del testimonio
+                enviarNotificacionCambioEstado(idR, "❌ Tu testimonio ha sido RECHAZADO por el administrador.");
+
                 response.sendRedirect("TestimonioServlet?action=listar");
                 break;
 
@@ -145,10 +150,37 @@ public class TestimonioServlet extends HttpServlet {
                     response.sendRedirect("perfilUsuario.jsp");
                     return;
                 }
+
                 int idE = Integer.parseInt(request.getParameter("id"));
+
+                // 🔔 Notificación al dueño del testimonio
+                enviarNotificacionCambioEstado(idE, "⚠️ Tu testimonio fue ELIMINADO por el administrador.");
+
                 dao.eliminar(idE);
                 response.sendRedirect("TestimonioServlet?action=listar");
                 break;
+        }
+    }
+
+    // ============================================================
+    // 📌 MÉTODO NUEVO → Enviar notificación al dueño del testimonio
+    // ============================================================
+    private void enviarNotificacionCambioEstado(int testimonioId, String mensaje) {
+
+        try {
+            int usuarioId = dao.obtenerUsuarioIdPorTestimonio(testimonioId);
+
+            if (usuarioId != -1) {
+                Notificacion n = new Notificacion();
+                n.setUsuarioId(usuarioId);
+                n.setMensaje(mensaje);
+                n.setEstado("NUEVA");
+
+                new NotificacionDAO().insertar(n);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
