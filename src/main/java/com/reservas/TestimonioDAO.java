@@ -49,33 +49,46 @@ public class TestimonioDAO {
         }
     }
 
-    // 🔹 Listar todos los testimonios
-    public List<Testimonio> listar() {
-        List<Testimonio> lista = new ArrayList<>();
-        String sql = "SELECT t.id, t.usuario_id, u.nombre, t.mensaje, t.estado, " +
-                     "TO_CHAR(t.fecha, 'YYYY-MM-DD HH24:MI') AS fecha " +
-                     "FROM testimonios t JOIN usuarios u ON t.usuario_id = u.id " +
-                     "ORDER BY t.fecha DESC";
-        try (Connection con = ConexionDB.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Testimonio t = new Testimonio();
-                t.setId(rs.getInt("id"));
-                t.setUsuarioId(rs.getInt("usuario_id"));
-                t.setUsuarioNombre(rs.getString("nombre"));
-                t.setMensaje(rs.getString("mensaje"));
-                t.setEstado(rs.getString("estado"));
-                t.setFecha(rs.getString("fecha"));
-                lista.add(t);
-            }
+    // 🔹 Listar todos los testimonios (con nombre del recurso)
+public List<Testimonio> listar() {
+    List<Testimonio> lista = new ArrayList<>();
+    String sql = "SELECT t.id, 
+                         t.usuario_id, 
+                         u.nombre AS usuarioNombre,
+                         t.mensaje, 
+                         t.estado,
+                         TO_CHAR(t.fecha, 'YYYY-MM-DD HH24:MI') AS fecha,
+                         r.nombre AS recursoNombre
+                  FROM testimonios t
+                  JOIN usuarios u ON t.usuario_id = u.id
+                  LEFT JOIN recursos r ON t.recurso_id = r.id
+                  ORDER BY t.fecha DESC";
 
-        } catch (Exception e) {
-            e.printStackTrace();
+    try (Connection con = ConexionDB.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            Testimonio t = new Testimonio();
+            t.setId(rs.getInt("id"));
+            t.setUsuarioId(rs.getInt("usuario_id"));
+            t.setUsuarioNombre(rs.getString("usuarioNombre"));
+            t.setMensaje(rs.getString("mensaje"));
+            t.setEstado(rs.getString("estado"));
+            t.setFecha(rs.getString("fecha"));
+
+            // 👇 este valor antes NO existía en listar()
+            t.setRecursoNombre(rs.getString("recursoNombre"));
+
+            lista.add(t);
         }
-        return lista;
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return lista;
+}
 
     // 🔹 Cambiar estado (Aprobado / Pendiente)
     public boolean cambiarEstado(int id, String estado) {
@@ -169,3 +182,4 @@ public class TestimonioDAO {
         return lista;
     }
 }
+
