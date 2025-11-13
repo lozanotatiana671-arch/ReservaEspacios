@@ -17,26 +17,25 @@ public class ReporteServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         // ------------------------------
-        // Filtros
+        // Filtros (NOMBRES EXACTOS DEL JSP)
         // ------------------------------
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
-        String tipoEspacio = request.getParameter("tipo");     // ✔ el JSP usa name="tipo"
-        String estadoRecurso = request.getParameter("estado"); // ✔ el JSP usa name="estado"
+        String tipoEspacio = request.getParameter("tipoEspacio");   // ✔ CORRECTO
+        String estadoRecurso = request.getParameter("estadoRecurso"); // ✔ CORRECTO
 
         // Mantener filtros en JSP
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
-        request.setAttribute("tipo", tipoEspacio);
-        request.setAttribute("estado", estadoRecurso);
+        request.setAttribute("tipoEspacio", tipoEspacio);
+        request.setAttribute("estadoRecurso", estadoRecurso);
 
         // ------------------------------
         // Estructuras de datos
         // ------------------------------
         Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
-        Map<String, Integer> reservasPorTipo = new LinkedHashMap<>(); // ✔ NECESARIA PARA LA GRÁFICA
-        Map<String, Integer> reservasPorUsuario = new LinkedHashMap<>();
+        Map<String, Integer> reservasPorTipo = new LinkedHashMap<>();
         List<Map<String, Object>> listaRecursos = new ArrayList<>();
 
         try (Connection con = ConexionDB.getConnection()) {
@@ -44,7 +43,7 @@ public class ReporteServlet extends HttpServlet {
             boolean tieneFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
-            // Convertir ACTIVO / INACTIVO → DISPONIBLE / OCUPADO
+            // Estado correcto en BD
             String estadoBD = null;
             if ("ACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "DISPONIBLE";
             if ("INACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "OCUPADO";
@@ -118,7 +117,7 @@ public class ReporteServlet extends HttpServlet {
             }
 
             // =====================================================
-            // 3. RESERVAS POR TIPO DE ESPACIO (✔ NUEVA, FALTABA)
+            // 3. RESERVAS POR TIPO DE ESPACIO
             // =====================================================
             StringBuilder sqlTipo = new StringBuilder(
                 "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
@@ -197,8 +196,7 @@ public class ReporteServlet extends HttpServlet {
         // ------------------------------
         request.setAttribute("reservasPorEstado", reservasPorEstado);
         request.setAttribute("reservasPorRecurso", reservasPorRecurso);
-        request.setAttribute("reservasPorTipo", reservasPorTipo);  // ✔ AHORA SÍ SE ENVÍA
-        request.setAttribute("reservasPorUsuario", reservasPorUsuario);
+        request.setAttribute("reservasPorTipo", reservasPorTipo);
         request.setAttribute("listaRecursos", listaRecursos);
 
         request.getRequestDispatcher("reporte.jsp").forward(request, response);
