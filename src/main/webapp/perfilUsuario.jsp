@@ -162,21 +162,6 @@
       text-decoration: none !important;
   }
 </style>
-
-<div class="col-md-4 mb-4">
-    <div class="card-dashboard text-center">
-        <div class="mb-3">
-            <i class="fas fa-calendar-plus fa-2x text-info"></i>
-        </div>
-
-        <div class="stat-title">Realiza tu reserva</div>
-
-        <!-- Botón pequeño personalizado -->
-        <a href="index.jsp" class="btn-reserva btn-sm mt-2">Ir ahora</a>
-    </div>
-</div>
-
-
 <div class="col-md-4 mb-4">
     <div class="card-dashboard text-center">
         <div class="mb-3">
@@ -188,8 +173,7 @@
         <a href="index.jsp" class="btn-reserva btn-sm mt-2">Ir ahora</a>
     </div>
 </div>
-
-    </div>
+</div>
 
     <!-- 🔹 Sección: Mis Reservas + Notificaciones -->
     <div class="row">
