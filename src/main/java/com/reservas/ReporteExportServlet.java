@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.awt.Color;
 import java.awt.BasicStroke;
-import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.awt.Font; // ✔ SOLO usado por JFreeChart, ya no afecta Excel
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-// Excel
+// Excel (Apache POI)
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -29,12 +29,11 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
-// Gráficos JFreeChart
+// Gráficos (JFreeChart)
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
@@ -45,7 +44,7 @@ import javax.imageio.ImageIO;
 @WebServlet("/ReporteExportServlet")
 public class ReporteExportServlet extends HttpServlet {
 
-    private static final Color COLOR_CORPORATIVO = new Color(0x00, 0x48, 0x2B); // #00482B
+    private static final Color COLOR_CORPORATIVO = new Color(0, 72, 43); // #00482B
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -65,13 +64,14 @@ public class ReporteExportServlet extends HttpServlet {
             boolean filtrarFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
+            // Traducir ACTIVO / INACTIVO
             String estadoBD = null;
             if ("ACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "DISPONIBLE";
             if ("INACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "OCUPADO";
 
-            // -------------------------------------------
+            // ------------------------------
             // RESERVAS POR ESTADO
-            // -------------------------------------------
+            // ------------------------------
             StringBuilder sqlEstado = new StringBuilder(
                 "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
             );
@@ -82,8 +82,8 @@ public class ReporteExportServlet extends HttpServlet {
             sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
 
             try (PreparedStatement ps = con.prepareStatement(sqlEstado.toString())) {
-                int i = 1;
 
+                int i = 1;
                 if (filtrarFecha) {
                     ps.setString(i++, fechaInicio);
                     ps.setString(i++, fechaFin);
@@ -95,9 +95,9 @@ public class ReporteExportServlet extends HttpServlet {
                 }
             }
 
-            // -------------------------------------------
+            // ------------------------------
             // RESERVAS POR RECURSO
-            // -------------------------------------------
+            // ------------------------------
             StringBuilder sqlRecurso = new StringBuilder(
                 "SELECT rc.nombre AS recurso, COUNT(*) AS total " +
                 "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
@@ -115,15 +115,18 @@ public class ReporteExportServlet extends HttpServlet {
             sqlRecurso.append(" GROUP BY rc.nombre ORDER BY total DESC ");
 
             try (PreparedStatement ps = con.prepareStatement(sqlRecurso.toString())) {
+
                 int i = 1;
 
                 if (filtrarFecha) {
                     ps.setString(i++, fechaInicio);
                     ps.setString(i++, fechaFin);
                 }
+
                 if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
                     ps.setString(i++, tipoEspacio);
                 }
+
                 if (estadoBD != null) {
                     ps.setString(i++, estadoBD);
                 }
@@ -138,9 +141,9 @@ public class ReporteExportServlet extends HttpServlet {
             throw new ServletException("Error generando datos", e);
         }
 
-        // -------------------------------------------
-        // FORMATO DE EXPORTACIÓN
-        // -------------------------------------------
+        // ------------------------------
+        // EXPORTACIÓN
+        // ------------------------------
         if ("excel".equalsIgnoreCase(tipo)) {
             exportarExcel(reservasPorEstado, reservasPorRecurso, response);
 
@@ -165,19 +168,20 @@ public class ReporteExportServlet extends HttpServlet {
         try (Workbook workbook = new XSSFWorkbook();
              OutputStream out = response.getOutputStream()) {
 
+            // ✔ USAR EL FONT DE APACHE POI — NO java.awt.Font
             CellStyle headerStyle = workbook.createCellStyle();
-            Font headerFont = workbook.createFont();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setFontHeightInPoints((short) 12);
             headerStyle.setFont(headerFont);
 
+            // HOJA 1
             Sheet sheet1 = workbook.createSheet("Por Estado");
             int rowIdx = 0;
 
             Row h1 = sheet1.createRow(rowIdx++);
             h1.createCell(0).setCellValue("Estado");
             h1.getCell(0).setCellStyle(headerStyle);
-
             h1.createCell(1).setCellValue("Total");
             h1.getCell(1).setCellStyle(headerStyle);
 
@@ -190,13 +194,13 @@ public class ReporteExportServlet extends HttpServlet {
             sheet1.autoSizeColumn(0);
             sheet1.autoSizeColumn(1);
 
+            // HOJA 2
             Sheet sheet2 = workbook.createSheet("Por Recurso");
             rowIdx = 0;
 
             Row h2 = sheet2.createRow(rowIdx++);
             h2.createCell(0).setCellValue("Recurso");
             h2.getCell(0).setCellStyle(headerStyle);
-
             h2.createCell(1).setCellValue("Total");
             h2.getCell(1).setCellStyle(headerStyle);
 
@@ -214,27 +218,20 @@ public class ReporteExportServlet extends HttpServlet {
     }
 
     // ============================================================
-    // GENERAR GRÁFICO (Pie Chart)
+    // CREAR GRÁFICO PIE
     // ============================================================
     private BufferedImage crearGrafico(Map<String, Integer> datos) {
 
         DefaultPieDataset dataset = new DefaultPieDataset();
-
         datos.forEach(dataset::setValue);
 
-        JFreeChart chart = ChartFactory.createPieChart(
-                "",
-                dataset,
-                false,
-                false,
-                false
-        );
+        JFreeChart chart = ChartFactory.createPieChart("", dataset, false, false, false);
 
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);
-        plot.setLabelFont(new Font("Arial", Font.PLAIN, 10));
         plot.setShadowPaint(null);
+        plot.setLabelFont(new Font("Arial", Font.PLAIN, 10));
 
         return chart.createBufferedImage(450, 300);
     }
@@ -256,9 +253,7 @@ public class ReporteExportServlet extends HttpServlet {
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
 
-            // -------------------------------------------------------
             // PORTADA ESTILO POWER BI
-            // -------------------------------------------------------
             Paragraph titulo = new Paragraph("Reporte de Reservas",
                     FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20));
             titulo.setAlignment(Element.ALIGN_CENTER);
@@ -271,7 +266,6 @@ public class ReporteExportServlet extends HttpServlet {
                     FontFactory.getFont(FontFactory.HELVETICA, 10));
             fecha.setAlignment(Element.ALIGN_CENTER);
 
-            // Línea verde delgada Power BI
             LineSeparator ls = new LineSeparator();
             ls.setLineColor(new com.itextpdf.text.BaseColor(0, 72, 43));
             ls.setLineWidth(2f);
@@ -283,17 +277,13 @@ public class ReporteExportServlet extends HttpServlet {
             document.add(ls);
             document.add(new Paragraph(" "));
 
-            // -------------------------------------------------------
-            // TABLA 1 — SOLO SI HAY DATOS
-            // -------------------------------------------------------
+            // TABLA ESTADO
             if (!reservasPorEstado.isEmpty()) {
-
                 document.add(new Paragraph("Reservas por Estado",
                         FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
 
                 PdfPTable table1 = new PdfPTable(2);
                 table1.setWidthPercentage(100);
-
                 table1.addCell("Estado");
                 table1.addCell("Total");
 
@@ -306,17 +296,13 @@ public class ReporteExportServlet extends HttpServlet {
                 document.add(new Paragraph(" "));
             }
 
-            // -------------------------------------------------------
-            // TABLA 2 — SOLO SI HAY DATOS
-            // -------------------------------------------------------
+            // TABLA RECURSOS
             if (!reservasPorRecurso.isEmpty()) {
-
                 document.add(new Paragraph("Reservas por Recurso",
                         FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
 
                 PdfPTable table2 = new PdfPTable(2);
                 table2.setWidthPercentage(100);
-
                 table2.addCell("Recurso");
                 table2.addCell("Total");
 
@@ -329,15 +315,13 @@ public class ReporteExportServlet extends HttpServlet {
                 document.add(new Paragraph(" "));
             }
 
-            // -------------------------------------------------------
-            // GRÁFICO — SOLO SI HAY DATOS
-            // -------------------------------------------------------
+            // GRÁFICO
             if (!reservasPorEstado.isEmpty()) {
                 document.add(new Paragraph("Distribución de Reservas por Estado",
                         FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
 
                 BufferedImage image = crearGrafico(reservasPorEstado);
-                com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(writer, image, 1.0f);
+                com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(writer, image, 1);
                 img.scaleToFit(350, 250);
                 img.setAlignment(Element.ALIGN_CENTER);
                 document.add(img);
