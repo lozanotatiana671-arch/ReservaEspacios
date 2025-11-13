@@ -16,13 +16,19 @@ public class NotificacionFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpSession session = req.getSession(false);
 
+        // Solo carga notificaciones si el usuario está autenticado
         if (session != null && session.getAttribute("usuarioId") != null) {
+
             int usuarioId = (Integer) session.getAttribute("usuarioId");
+
             NotificacionDAO dao = new NotificacionDAO();
             List<Notificacion> notifs = dao.listarPorUsuario(usuarioId);
             int count = dao.contarNoLeidas(usuarioId);
-            req.setAttribute("notificaciones", notifs);
-            req.setAttribute("notificacionesCount", count);
+
+            // 🔥 CORRECCIÓN IMPORTANTE:
+            // Guardamos en SESIÓN porque el request se pierde entre redirecciones.
+            session.setAttribute("notificaciones", notifs);
+            session.setAttribute("notificacionesCount", count);
         }
 
         chain.doFilter(request, response);
