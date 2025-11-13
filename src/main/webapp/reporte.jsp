@@ -68,6 +68,16 @@
       table tbody tr:hover { background-color: #E8F5E9; }
 
       .mensaje-central { padding:40px; text-align:center; }
+
+      /* NUEVO: Gráficas pequeñas tipo Power BI */
+      .chart-small-container {
+          width: 100%;
+          height: 180px;
+          padding: 10px;
+      }
+      .chart-small-container canvas {
+          max-height:160px !important;
+      }
   </style>
 </head>
 
@@ -100,7 +110,7 @@
 <div class="container-fluid">
   <div class="row">
 
-    <!-- ⭐⭐⭐ MENÚ LATERAL ORIGINAL COMPLETO ⭐⭐⭐ -->
+    <!-- ⭐⭐⭐ MENÚ LATERAL COMPLETO ⭐⭐⭐ -->
     <nav class="col-md-2 side-menu" id="sideMenu">
         <h4><i class="fas fa-cogs"></i> Administración</h4>
         
@@ -124,13 +134,13 @@
         </a>
     </nav>
 
-    <!-- CONTENIDO -->
+    <!-- ⭐ CONTENIDO ⭐ -->
     <main class="col-md-10 content-area">
 
         <h2><i class="bi bi-bar-chart"></i> Reporte de Espacios</h2>
 
         <!-- FILTROS -->
-        <form action="ReporteServlet" method="get" class="mb-4">
+        <form action="ReporteServlet" method="get" class="mb-4" id="formFiltros">
             <div class="form-row">
 
                 <div class="col-md-3">
@@ -165,21 +175,6 @@
                 </div>
 
             </div>
-
-            <div class="text-right mt-3">
-              <button class="btn btn-success"><i class="fas fa-search"></i> Generar</button>
-
-              <a class="btn btn-danger ml-2"
-                 href="ReporteExportServlet?tipo=pdf&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
-                     <i class="fas fa-file-pdf"></i> PDF
-              </a>
-
-              <a class="btn btn-primary ml-2"
-                 href="ReporteExportServlet?tipo=excel&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipoEspacio=<%=v(request.getAttribute("tipoEspacio"))%>&estadoRecurso=<%=v(request.getAttribute("estadoRecurso"))%>">
-                     <i class="fas fa-file-excel"></i> Excel
-              </a>
-            </div>
-
         </form>
 
         <!-- ⭐ MENSAJE CUANDO NO HAY FILTROS ⭐ -->
@@ -187,72 +182,80 @@
 
             <div class="mensaje-central">
                 <i class="fas fa-info-circle" style="font-size:55px; color:#00482B;"></i>
-                <h4 style="color:#00482B; font-weight:bold;">Selecciona al menos un filtro</h4>
-                <p class="text-muted">Para visualizar datos del sistema.</p>
+                <h4 style="color:#00482B; font-weight:bold;">Selecciona un filtro</h4>
+                <p class="text-muted">Para visualizar los reportes del sistema.</p>
             </div>
 
         <% } else { %>
 
-            <!-- GRÁFICAS -->
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <h6>Por Estado</h6>
+        <!-- ⭐ GRÁFICAS PEQUEÑAS TIPO POWER BI ⭐ -->
+        <div class="row text-center">
+
+            <div class="col-md-4">
+                <h6>Por Estado</h6>
+                <div class="chart-small-container">
                     <canvas id="chartEstado"></canvas>
                 </div>
+            </div>
 
-                <div class="col-md-4">
-                    <h6>Por Recurso</h6>
+            <div class="col-md-4">
+                <h6>Por Recurso</h6>
+                <div class="chart-small-container">
                     <canvas id="chartRecurso"></canvas>
                 </div>
+            </div>
 
-                <div class="col-md-4">
-                    <h6>Por Tipo</h6>
+            <div class="col-md-4">
+                <h6>Por Tipo</h6>
+                <div class="chart-small-container">
                     <canvas id="chartTipo"></canvas>
                 </div>
             </div>
 
-            <% if (!listaRecursos.isEmpty()) { %>
+        </div>
 
-            <!-- TABLA -->
-            <div class="mt-4">
-                <table id="tablaRecursos" class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Nombre</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Tarifa (COP)</th>
-                        <th>Ubicación</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% for (Map<String,Object> fila : listaRecursos) { %>
-                      <tr>
-                        <td><%= fila.get("nombre") %></td>
-                        <td><%= fila.get("tipo") %></td>
-                        <td><%= fila.get("estado") %></td>
-                        <td><%= fila.get("tarifa") %></td>
-                        <td><%= fila.get("ubicacion") %></td>
-                      </tr>
-                      <% } %>
-                    </tbody>
-                </table>
-            </div>
+        <% if (!listaRecursos.isEmpty()) { %>
 
-            <!-- PAGINACIÓN -->
-            <div class="pagination-container">
-                <div id="pagination" class="pagination"></div>
-            </div>
+        <!-- TABLA -->
+        <div class="mt-4">
+            <table id="tablaRecursos" class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Tarifa (COP)</th>
+                    <th>Ubicación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% for (Map<String,Object> fila : listaRecursos) { %>
+                  <tr>
+                    <td><%= fila.get("nombre") %></td>
+                    <td><%= fila.get("tipo") %></td>
+                    <td><%= fila.get("estado") %></td>
+                    <td><%= fila.get("tarifa") %></td>
+                    <td><%= fila.get("ubicacion") %></td>
+                  </tr>
+                  <% } %>
+                </tbody>
+            </table>
+        </div>
 
-            <% } else { %>
+        <!-- PAGINACIÓN 2 FILAS -->
+        <div class="pagination-container">
+            <div id="pagination" class="pagination"></div>
+        </div>
 
-            <div class="mensaje-central">
-                <i class="fas fa-database" style="font-size:55px; color:#00482B;"></i>
-                <h4 style="color:#00482B; font-weight:bold;">No hay datos</h4>
-                <p class="text-muted">Ajusta los filtros.</p>
-            </div>
+        <% } else { %>
 
-            <% } %>
+        <div class="mensaje-central">
+            <i class="fas fa-database" style="font-size:55px; color:#00482B;"></i>
+            <h4 style="color:#00482B; font-weight:bold;">No hay datos</h4>
+            <p class="text-muted">Ajusta los filtros.</p>
+        </div>
+
+        <% } %>
         <% } %>
 
     </main>
@@ -348,6 +351,16 @@
 
         showPage(1);
     }
+</script>
+
+<!-- AUTO-ENVIAR FORMULARIO AL CAMBIAR FILTRO -->
+<script>
+document.querySelectorAll("#formFiltros input, #formFiltros select")
+    .forEach(el => {
+        el.addEventListener("change", () => {
+            document.getElementById("formFiltros").submit();
+        });
+    });
 </script>
 
 <script>
