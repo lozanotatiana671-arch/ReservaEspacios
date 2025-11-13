@@ -10,6 +10,7 @@
     }
 
     String usuarioNombre = (String) sesion.getAttribute("usuarioNombre");
+    String usuarioCorreo = (String) sesion.getAttribute("usuarioCorreo");
 
     // 🔹 Cargar notificaciones (para que el menú funcione sin error)
     List<Notificacion> notificaciones = (List<Notificacion>) request.getAttribute("notificaciones");
@@ -102,22 +103,31 @@
       </p>
 
       <form action="ContactenosServlet" method="post" class="contact-form">
+
+        <!-- 🔥 Campo oculto con el ID del usuario autenticado -->
+        <input type="hidden" name="usuarioId" value="<%= sesion.getAttribute("usuarioId") %>">
+
         <div class="form-group">
           <label for="nombre"><i class="fas fa-user"></i> Nombre completo</label>
-          <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+          <input type="text" class="form-control" id="nombre" name="nombre"
+                 value="<%= usuarioNombre %>" readonly>
         </div>
 
         <div class="form-group">
           <label for="correo"><i class="fas fa-envelope"></i> Correo electrónico</label>
-          <input type="email" class="form-control" id="correo" name="correo" placeholder="usuario@ejemplo.com" required>
+          <input type="email" class="form-control" id="correo" name="correo"
+                 value="<%= usuarioCorreo %>" readonly>
         </div>
 
         <div class="form-group">
           <label for="mensaje"><i class="fas fa-comment"></i> Mensaje</label>
-          <textarea class="form-control" id="mensaje" name="mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required></textarea>
+          <textarea class="form-control" id="mensaje" name="mensaje" rows="5"
+                    placeholder="Escribe tu mensaje aquí..." required></textarea>
         </div>
 
-        <button type="submit" class="btn-enviar"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
+        <button type="submit" class="btn-enviar">
+          <i class="fas fa-paper-plane"></i> Enviar Mensaje
+        </button>
       </form>
 
       <% if (request.getAttribute("mensaje") != null) { %>
