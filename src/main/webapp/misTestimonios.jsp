@@ -95,7 +95,7 @@
 <!-- 🔹 Contenido Principal -->
 <div class="content">
   <div class="header">
-    <h2 class="mb-0">Testimonios</h2>
+    <h2 class="mb-0">¡Testimonios!</h2>
     <div class="user-info">
       <i class="fas fa-user"></i>
       <span>Bienvenido, <%= usuarioNombre %> 👋</span>
@@ -116,8 +116,8 @@
 
       <div class="card shadow-sm">
         <div class="card-header bg-success text-white">
-          <h5 class="mb-0"><i class="fas fa-comments"></i> Tus testimonios publicados</h5><br><br>
-        </div>
+          <h5 class="mb-0"><i class="fas fa-comments"></i> Tus testimonios publicados</h5>
+        </div><br><br>
 
         <div class="card-body p-0">
           <div class="table-responsive">
