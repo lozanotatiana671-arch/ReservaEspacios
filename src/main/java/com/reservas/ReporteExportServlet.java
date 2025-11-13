@@ -30,7 +30,6 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import com.itextpdf.text.DocumentException;
 
 @WebServlet("/ReporteExportServlet")
 public class ReporteExportServlet extends HttpServlet {
@@ -42,56 +41,91 @@ public class ReporteExportServlet extends HttpServlet {
         String tipo = request.getParameter("tipo");
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
+        String filtroTipo = request.getParameter("tipoEspacio");
+        String filtroEstado = request.getParameter("estadoRecurso");
 
         Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
 
         try (Connection con = ConexionDB.getConnection()) {
 
-            boolean filtrar = fechaInicio != null && !fechaInicio.isEmpty()
+            boolean filtrarFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
-            // 🔥 CORRECCIÓN PARA POSTGRESQL
-            String filtroFecha = filtrar
-                    ? " WHERE r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) "
-                    : "";
+            // Convertimos ACTIVO / INACTIVO → DISPONIBLE / OCUPADO
+            String estadoBD = null;
 
-            // -------------------------------------------------
-            // RESERVAS POR ESTADO
-            // -------------------------------------------------
-            String sqlEstado =
-                "SELECT r.estado, COUNT(*) AS total " +
-                "FROM reservas r " +
-                filtroFecha +
-                "GROUP BY r.estado ORDER BY r.estado";
+            if ("ACTIVO".equalsIgnoreCase(filtroEstado)) {
+                estadoBD = "DISPONIBLE";
+            } else if ("INACTIVO".equalsIgnoreCase(filtroEstado)) {
+                estadoBD = "OCUPADO";
+            }
 
-            try (PreparedStatement ps = con.prepareStatement(sqlEstado)) {
-                if (filtrar) {
-                    ps.setString(1, fechaInicio);
-                    ps.setString(2, fechaFin);
+            // ================================
+            //  RESERVAS POR ESTADO
+            // ================================
+            StringBuilder sqlEstado = new StringBuilder(
+                "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
+            );
+
+            if (filtrarFecha) {
+                sqlEstado.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+            }
+
+            sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
+
+            try (PreparedStatement ps = con.prepareStatement(sqlEstado.toString())) {
+                int i = 1;
+
+                if (filtrarFecha) {
+                    ps.setString(i++, fechaInicio);
+                    ps.setString(i++, fechaFin);
                 }
+
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     reservasPorEstado.put(rs.getString("estado"), rs.getInt("total"));
                 }
             }
 
-            // -------------------------------------------------
-            // RESERVAS POR RECURSO
-            // -------------------------------------------------
-            String sqlRecurso =
+            // ================================
+            //  RESERVAS POR RECURSO
+            // ================================
+            StringBuilder sqlRecurso = new StringBuilder(
                 "SELECT rc.nombre AS recurso, COUNT(*) AS total " +
-                "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id " +
-                (filtrar
-                    ? " WHERE r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) "
-                    : "") +
-                "GROUP BY rc.nombre ORDER BY total DESC";
+                "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
+            );
 
-            try (PreparedStatement ps = con.prepareStatement(sqlRecurso)) {
-                if (filtrar) {
-                    ps.setString(1, fechaInicio);
-                    ps.setString(2, fechaFin);
+            if (filtrarFecha) {
+                sqlRecurso.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+            }
+
+            if (filtroTipo != null && !filtroTipo.isEmpty()) {
+                sqlRecurso.append(" AND rc.tipo = ? ");
+            }
+
+            if (estadoBD != null) {
+                sqlRecurso.append(" AND rc.estado = ? ");
+            }
+
+            sqlRecurso.append(" GROUP BY rc.nombre ORDER BY total DESC ");
+
+            try (PreparedStatement ps = con.prepareStatement(sqlRecurso.toString())) {
+                int i = 1;
+
+                if (filtrarFecha) {
+                    ps.setString(i++, fechaInicio);
+                    ps.setString(i++, fechaFin);
                 }
+
+                if (filtroTipo != null && !filtroTipo.isEmpty()) {
+                    ps.setString(i++, filtroTipo);
+                }
+
+                if (estadoBD != null) {
+                    ps.setString(i++, estadoBD);
+                }
+
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     reservasPorRecurso.put(rs.getString("recurso"), rs.getInt("total"));
@@ -114,7 +148,6 @@ public class ReporteExportServlet extends HttpServlet {
         }
     }
 
-
     // ============================================================
     // EXPORTAR EXCEL
     // ============================================================
@@ -133,7 +166,7 @@ public class ReporteExportServlet extends HttpServlet {
             headerFont.setBold(true);
             headerStyle.setFont(headerFont);
 
-            // Hoja 1
+            // HOJA 1
             Sheet sheet1 = workbook.createSheet("Por Estado");
             int rowIdx = 0;
 
@@ -152,7 +185,7 @@ public class ReporteExportServlet extends HttpServlet {
             sheet1.autoSizeColumn(0);
             sheet1.autoSizeColumn(1);
 
-            // Hoja 2
+            // HOJA 2
             Sheet sheet2 = workbook.createSheet("Por Recurso");
             int rowIdx2 = 0;
 
@@ -174,7 +207,6 @@ public class ReporteExportServlet extends HttpServlet {
             workbook.write(out);
         }
     }
-
 
     // ============================================================
     // EXPORTAR PDF
