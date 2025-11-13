@@ -4,7 +4,7 @@
 <%@ page import="org.json.*" %>
 
 <%!
-    // ✅ Función para evitar valores null (DEBE IR AQUÍ)
+    // Función segura para evitar null
     public String v(Object o) {
         return (o == null) ? "" : o.toString();
     }
@@ -21,13 +21,15 @@
     String adminNombre = (String) sesion.getAttribute("usuarioNombre");
     if (adminNombre == null) adminNombre = "Admin";
 
-    // 🔹 Obtener datos
+    // 🔹 Obtener datos desde el servlet
     Map<String,Integer> reservasPorEstado = (Map<String,Integer>) request.getAttribute("reservasPorEstado");
     Map<String,Integer> reservasPorRecurso = (Map<String,Integer>) request.getAttribute("reservasPorRecurso");
+    Map<String,Integer> reservasPorTipo = (Map<String,Integer>) request.getAttribute("reservasPorTipo");
     List<Map<String,Object>> listaRecursos = (List<Map<String,Object>>) request.getAttribute("listaRecursos");
 
     if (reservasPorEstado == null) reservasPorEstado = new LinkedHashMap<>();
     if (reservasPorRecurso == null) reservasPorRecurso = new LinkedHashMap<>();
+    if (reservasPorTipo == null) reservasPorTipo = new LinkedHashMap<>();
     if (listaRecursos == null) listaRecursos = new ArrayList<>();
 %>
 
@@ -48,7 +50,6 @@
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/sub_menuadmin.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/styles.css">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/reservas.css">
-
 </head>
 
 <body>
@@ -68,7 +69,7 @@
             <li class="nav-item"><a class="nav-link" href="ListaReservasServlet">📋 Reservas</a></li>
             <li class="nav-item"><a class="nav-link" href="ListaRecursosServlet">⚙️ Recursos</a></li>
             <li class="nav-item"><a class="nav-link" href="UsuarioServlet?action=listar">👤 Usuarios</a></li>
-            <li class="nav-item"><a class="nav-link" href="ReporteServlet">📊 Reportes</a></li>
+            <li class="nav-item"><a class="nav-link active" href="ReporteServlet">📊 Reportes</a></li>
         </ul>
 
         <span class="navbar-text text-white mr-3">
@@ -84,7 +85,7 @@
 <div class="container-fluid">
   <div class="row" style="margin-right: -20px;">
 
-    <!-- 🔹 Menú lateral (NO SE TOCÓ NADA) -->
+    <!-- 🔹 Menú lateral -->
     <nav class="col-md-2 side-menu" id="sideMenu">
         <h4><i class="fas fa-cogs"></i> Administración</h4>
         <a href="UsuarioServlet?action=listar"><i class="fas fa-users"></i> Usuarios</a>
@@ -144,13 +145,6 @@
                     </select>
                 </div>
 
-                <!-- Capacidad -->
-                <div class="col-md-6 mb-3">
-                    <label for="capacidad">Capacidad</label>
-                    <input type="number" id="capacidad" name="capacidad" class="form-control" min="1"
-                           value="<%= v(request.getAttribute("capacidad")) %>">
-                </div>
-
                 <!-- Botones -->
                 <div class="col-md-12 text-right mt-3">
                   <button type="submit" class="btn btn-success">
@@ -162,8 +156,7 @@
                     &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
                     &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
                     &tipo=<%= v(request.getAttribute("tipo")) %>
-                    &estado=<%= v(request.getAttribute("estado")) %>
-                    &capacidad=<%= v(request.getAttribute("capacidad")) %>"
+                    &estado=<%= v(request.getAttribute("estado")) %>"
                      class="btn btn-danger ml-2">
                     <i class="fas fa-file-pdf"></i> Exportar PDF
                   </a>
@@ -173,31 +166,37 @@
                     &fechaInicio=<%= v(request.getAttribute("fechaInicio")) %>
                     &fechaFin=<%= v(request.getAttribute("fechaFin")) %>
                     &tipo=<%= v(request.getAttribute("tipo")) %>
-                    &estado=<%= v(request.getAttribute("estado")) %>
-                    &capacidad=<%= v(request.getAttribute("capacidad")) %>"
+                    &estado=<%= v(request.getAttribute("estado")) %>"
                      class="btn btn-primary ml-2">
                     <i class="fas fa-file-excel"></i> Exportar Excel
                   </a>
+
                 </div>
 
             </div>
         </form>
 
-        <!-- 🔹 Gráficas -->
-        <div class="row" id="graficasContainer">
-          <div class="col-md-6">
-            <div class="rf-chart-section">
-              <h5><i class="bi bi-pie-chart"></i> Reservas por Estado</h5>
-              <canvas id="chartEstado"></canvas>
-            </div>
-          </div>
+        <!-- 🔹 Gráficas 3 en fila -->
+        <div class="row text-center" style="margin-top:20px;">
 
-          <div class="col-md-6">
-            <div class="rf-chart-section">
-              <h5><i class="bi bi-bar-chart-line"></i> Reservas por Recurso</h5>
-              <canvas id="chartRecurso"></canvas>
+            <!-- Gráfico Estado -->
+            <div class="col-md-4">
+                <h6><i class="bi bi-pie-chart"></i> Por Estado</h6>
+                <canvas id="chartEstado" style="max-height:200px;"></canvas>
             </div>
-          </div>
+
+            <!-- Gráfico Recurso -->
+            <div class="col-md-4">
+                <h6><i class="bi bi-bar-chart-line"></i> Por Recurso</h6>
+                <canvas id="chartRecurso" style="max-height:200px;"></canvas>
+            </div>
+
+            <!-- Gráfico Tipo -->
+            <div class="col-md-4">
+                <h6><i class="bi bi-diagram-3"></i> Por Tipo de Espacio</h6>
+                <canvas id="chartTipo" style="max-height:200px;"></canvas>
+            </div>
+
         </div>
 
         <!-- 🔹 Tabla -->
@@ -208,7 +207,6 @@
                 <th>Nombre</th>
                 <th>Tipo</th>
                 <th>Estado</th>
-                <th>Capacidad</th>
                 <th>Tarifa (COP)</th>
                 <th>Disponible</th>
                 <th>Ubicación</th>
@@ -216,21 +214,20 @@
             </thead>
             <tbody>
               <%
-                if (listaRecursos != null && !listaRecursos.isEmpty()) {
-                  for (Map<String, Object> fila : listaRecursos) {
+                if (!listaRecursos.isEmpty()) {
+                    for (Map<String,Object> fila : listaRecursos) {
               %>
               <tr>
                 <td><%= fila.get("nombre") %></td>
                 <td><%= fila.get("tipo") %></td>
                 <td><%= fila.get("estado") %></td>
-                <td><%= fila.get("capacidad") %></td>
                 <td><%= fila.get("tarifa") %></td>
                 <td><%= "ACTIVO".equalsIgnoreCase(v(fila.get("estado"))) ? "Sí" : "No" %></td>
                 <td><%= fila.get("ubicacion") %></td>
               </tr>
               <% }} else { %>
               <tr>
-                <td colspan="7" class="text-center text-muted">No hay datos disponibles</td>
+                <td colspan="6" class="text-center text-muted">No hay datos disponibles</td>
               </tr>
               <% } %>
             </tbody>
@@ -246,12 +243,10 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Gráfico Estado -->
 <script>
     const labelsEstado = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.keySet()) %>;
     const dataEstado   = <%= reservasPorEstado.isEmpty() ? "[]" : new JSONArray(reservasPorEstado.values()) %>;
-
-    const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
-    const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
 
     new Chart(document.getElementById('chartEstado'), {
       type: 'doughnut',
@@ -265,6 +260,12 @@
       },
       options: { plugins: { legend: { position: 'bottom' } } }
     });
+</script>
+
+<!-- Gráfico Recurso -->
+<script>
+    const labelsRecurso = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.keySet()) %>;
+    const dataRecurso   = <%= reservasPorRecurso.isEmpty() ? "[]" : new JSONArray(reservasPorRecurso.values()) %>;
 
     new Chart(document.getElementById('chartRecurso'), {
       type: 'bar',
@@ -281,8 +282,27 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        scales: { y: { beginAtZero: true } }
       }
+    });
+</script>
+
+<!-- Gráfico Tipo -->
+<script>
+    const labelsTipo = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.keySet()) %>;
+    const dataTipo   = <%= reservasPorTipo.isEmpty() ? "[]" : new JSONArray(reservasPorTipo.values()) %>;
+
+    new Chart(document.getElementById('chartTipo'), {
+      type: 'pie',
+      data: {
+        labels: labelsTipo,
+        datasets: [{
+          data: dataTipo,
+          backgroundColor: ['#79C000','#007B3E','#00482B','#FBE122','#DAAA00'],
+          borderWidth: 0
+        }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } } }
     });
 </script>
 
