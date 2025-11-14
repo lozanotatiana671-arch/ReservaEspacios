@@ -527,10 +527,18 @@ if (labelsRecurso.length > 0) {
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false } 
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: "rgba(0,0,0,0.05)" } },
-                x: { ticks: { color: "#333" } }
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: "rgba(0,0,0,0.05)" }
+                },
+                x: { 
+                    ticks: { display: false },   // ❌ OCULTA LAS ETIQUETAS DEL EJE X
+                    grid: { display: false }     // ❌ OCULTA LA LÍNEA DE BASE
+                }
             }
         }
     });
