@@ -710,5 +710,47 @@ document.getElementById("menuToggle").onclick = function() {
 };
 </script>
 
+<script>
+function exportarPDF() {
+    // Obtener los canvas
+    const canvasEstado  = document.getElementById("chartEstado");
+    const canvasRecurso = document.getElementById("chartRecurso");
+    const canvasTipo    = document.getElementById("chartTipo");
+
+    // Convertir a Base64 PNG
+    const imgEstado  = canvasEstado  ? canvasEstado.toDataURL("image/png") : "";
+    const imgRecurso = canvasRecurso ? canvasRecurso.toDataURL("image/png") : "";
+    const imgTipo    = canvasTipo    ? canvasTipo.toDataURL("image/png") : "";
+
+    // Crear formulario POST oculto
+    let form = document.createElement("form");
+    form.method = "POST";
+    form.action = "ReporteExportServlet";
+
+    // Tipo = pdf
+    let campoTipo = document.createElement("input");
+    campoTipo.type = "hidden";
+    campoTipo.name = "tipo";
+    campoTipo.value = "pdf";
+    form.appendChild(campoTipo);
+
+    // Agregar imágenes Base64
+    function addField(name, value) {
+        let inp = document.createElement("input");
+        inp.type = "hidden";
+        inp.name = name;
+        inp.value = value;
+        form.appendChild(inp);
+    }
+
+    addField("imgEstado",  imgEstado);
+    addField("imgRecurso", imgRecurso);
+    addField("imgTipo",    imgTipo);
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+
 </body>
 </html>
