@@ -300,10 +300,12 @@
                     <i class="fas fa-search"></i> Generar
                 </button>
 
-                <a class="btn btn-danger-custom ml-2"
-                   href="ReporteExportServlet?tipo=pdf&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipo=<%=v(request.getAttribute("tipo"))%>&estado=<%=v(request.getAttribute("estado"))%>">
-                    <i class="fas fa-file-pdf"></i> PDF
-                </a>
+               <a class="btn btn-danger-custom ml-2"
+               href="#"
+               onclick="exportarPDF(); return false;">
+               <i class="fas fa-file-pdf"></i> PDF
+               </a>
+
 
                 <a class="btn btn-primary-custom ml-2"
                    href="ReporteExportServlet?tipo=excel&fechaInicio=<%=v(request.getAttribute("fechaInicio"))%>&fechaFin=<%=v(request.getAttribute("fechaFin"))%>&tipo=<%=v(request.getAttribute("tipo"))%>&estado=<%=v(request.getAttribute("estado"))%>">
