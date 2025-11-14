@@ -646,16 +646,17 @@ function aplicarPaginacion() {
 /* Filtro de tabla (texto, tipo, estado de reserva) */
 function aplicarFiltrosTabla() {
     if (!table) return;
-    const texto   = document.getElementById("filtroTextoTabla")  ? document.getElementById("filtroTextoTabla").value.toLowerCase() : "";
-    const tipo    = document.getElementById("filtroTipoTabla")   ? document.getElementById("filtroTipoTabla").value : "";
-    const estado  = document.getElementById("filtroEstadoTabla") ? document.getElementById("filtroEstadoTabla").value : "";
+
+    const texto   = document.getElementById("filtroTextoTabla")?.value.toLowerCase() || "";
+    const tipo    = document.getElementById("filtroTipoTabla")?.value.toLowerCase() || "";
+    const estado  = document.getElementById("filtroEstadoTabla")?.value.toLowerCase() || "";
 
     const rows = table.querySelectorAll("tbody tr");
 
     rows.forEach(r => {
         const nombre    = r.cells[0].innerText.toLowerCase();
-        const tipoCol   = r.cells[1].innerText.toUpperCase();
-        const estadoCol = r.cells[2].innerText.toUpperCase();
+        const tipoCol   = r.cells[1].innerText.toLowerCase();
+        const estadoCol = r.cells[2].innerText.toLowerCase();
         const ubic      = r.cells[4].innerText.toLowerCase();
 
         let visible = true;
@@ -663,25 +664,21 @@ function aplicarFiltrosTabla() {
         if (texto && !(nombre.includes(texto) || ubic.includes(texto))) {
             visible = false;
         }
-        if (tipo && tipoCol !== tipo.toUpperCase()) {
+        if (tipo && tipoCol !== tipo) {
             visible = false;
         }
-        if (estado && estadoCol !== estado.toUpperCase()) {
+        if (estado && estadoCol !== estado) {
             visible = false;
         }
 
-        if (visible) {
-            r.style.display = "";
-            r.removeAttribute("data-filtered");
-        } else {
-            r.style.display = "none";
-            r.setAttribute("data-filtered","true");
-        }
+        r.style.display = visible ? "" : "none";
+        r.dataset.filtered = visible ? "" : "true";
     });
 
     currentPage = 1;
     aplicarPaginacion();
 }
+
 
 /* Inicialización */
 if (table) {
