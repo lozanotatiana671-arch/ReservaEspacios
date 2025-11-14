@@ -3,13 +3,13 @@ package com.reservas;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.awt.Color;
-import java.awt.BasicStroke;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
-import java.awt.Font; // ✔ SOLO usado por JFreeChart, ya no afecta Excel
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,32 +19,32 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-// Excel (Apache POI)
+// Excel
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-// PDF iText
+// PDF
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
-// Gráficos (JFreeChart)
+// Gráficos JFreeChart
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
-import javax.imageio.ImageIO;
-
 @WebServlet("/ReporteExportServlet")
 public class ReporteExportServlet extends HttpServlet {
 
-    private static final Color COLOR_CORPORATIVO = new Color(0, 72, 43); // #00482B
+    private static final Color VERDE_OSCURO = new Color(0, 72, 43);   // #00482B
+    private static final com.itextpdf.text.BaseColor PDF_VERDE = new com.itextpdf.text.BaseColor(0, 72, 43);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -53,31 +53,30 @@ public class ReporteExportServlet extends HttpServlet {
         String tipo = request.getParameter("tipo");
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
-        String tipoEspacio = request.getParameter("tipoEspacio");
-        String estadoRecurso = request.getParameter("estadoRecurso");
+        String tipoEspacio = request.getParameter("tipo");
+        String estadoReserva = request.getParameter("estado");
 
         Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
+        Map<String, Integer> reservasPorTipo = new LinkedHashMap<>();
 
         try (Connection con = ConexionDB.getConnection()) {
 
             boolean filtrarFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
-            // Traducir ACTIVO / INACTIVO
-            String estadoBD = null;
-            if ("ACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "DISPONIBLE";
-            if ("INACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "OCUPADO";
-
-            // ------------------------------
-            // RESERVAS POR ESTADO
-            // ------------------------------
+            // ================================
+            // RESERVAS POR ESTADO (filtra)
+            // ================================
             StringBuilder sqlEstado = new StringBuilder(
                 "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
             );
 
             if (filtrarFecha)
-                sqlEstado.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+                sqlEstado.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
+
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlEstado.append(" AND UPPER(r.estado) = UPPER(?) ");
 
             sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
 
@@ -89,28 +88,31 @@ public class ReporteExportServlet extends HttpServlet {
                     ps.setString(i++, fechaFin);
                 }
 
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(i++, estadoReserva);
+
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     reservasPorEstado.put(rs.getString("estado"), rs.getInt("total"));
                 }
             }
 
-            // ------------------------------
-            // RESERVAS POR RECURSO
-            // ------------------------------
+            // ================================
+            // RESERVAS POR RECURSO (filtra)
+            // ================================
             StringBuilder sqlRecurso = new StringBuilder(
                 "SELECT rc.nombre AS recurso, COUNT(*) AS total " +
                 "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
             );
 
             if (filtrarFecha)
-                sqlRecurso.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+                sqlRecurso.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
 
             if (tipoEspacio != null && !tipoEspacio.isEmpty())
                 sqlRecurso.append(" AND rc.tipo = ? ");
 
-            if (estadoBD != null)
-                sqlRecurso.append(" AND rc.estado = ? ");
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlRecurso.append(" AND UPPER(r.estado) = UPPER(?) ");
 
             sqlRecurso.append(" GROUP BY rc.nombre ORDER BY total DESC ");
 
@@ -123,13 +125,11 @@ public class ReporteExportServlet extends HttpServlet {
                     ps.setString(i++, fechaFin);
                 }
 
-                if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
+                if (tipoEspacio != null && !tipoEspacio.isEmpty())
                     ps.setString(i++, tipoEspacio);
-                }
 
-                if (estadoBD != null) {
-                    ps.setString(i++, estadoBD);
-                }
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(i++, estadoReserva);
 
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -137,83 +137,53 @@ public class ReporteExportServlet extends HttpServlet {
                 }
             }
 
+            // ================================
+            // RESERVAS POR TIPO (filtra)
+            // ================================
+            StringBuilder sqlTipo = new StringBuilder(
+                "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
+                "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
+            );
+
+            if (filtrarFecha)
+                sqlTipo.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
+
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlTipo.append(" AND UPPER(r.estado) = UPPER(?) ");
+
+            sqlTipo.append(" GROUP BY rc.tipo ORDER BY total DESC ");
+
+            try (PreparedStatement ps = con.prepareStatement(sqlTipo.toString())) {
+
+                int i = 1;
+
+                if (filtrarFecha) {
+                    ps.setString(i++, fechaInicio);
+                    ps.setString(i++, fechaFin);
+                }
+
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(i++, estadoReserva);
+
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    reservasPorTipo.put(rs.getString("tipo"), rs.getInt("total"));
+                }
+            }
+
         } catch (Exception e) {
-            throw new ServletException("Error generando datos", e);
+            throw new ServletException("Error generando datos para exportación", e);
         }
 
-        // ------------------------------
-        // EXPORTACIÓN
-        // ------------------------------
+        // Exportar según tipo
         if ("excel".equalsIgnoreCase(tipo)) {
-            exportarExcel(reservasPorEstado, reservasPorRecurso, response);
+            exportarExcel(reservasPorEstado, reservasPorRecurso, reservasPorTipo, response);
 
         } else if ("pdf".equalsIgnoreCase(tipo)) {
-            exportarPDF(reservasPorEstado, reservasPorRecurso, response);
+            exportarPDF(reservasPorEstado, reservasPorRecurso, reservasPorTipo, response);
 
         } else {
             response.sendError(400, "Tipo inválido");
-        }
-    }
-
-    // ============================================================
-    // EXPORTAR EXCEL
-    // ============================================================
-    private void exportarExcel(Map<String, Integer> reservasPorEstado,
-                               Map<String, Integer> reservasPorRecurso,
-                               HttpServletResponse response) throws IOException {
-
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=reporte_reservas.xlsx");
-
-        try (Workbook workbook = new XSSFWorkbook();
-             OutputStream out = response.getOutputStream()) {
-
-            // ✔ USAR EL FONT DE APACHE POI — NO java.awt.Font
-            CellStyle headerStyle = workbook.createCellStyle();
-            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setFontHeightInPoints((short) 12);
-            headerStyle.setFont(headerFont);
-
-            // HOJA 1
-            Sheet sheet1 = workbook.createSheet("Por Estado");
-            int rowIdx = 0;
-
-            Row h1 = sheet1.createRow(rowIdx++);
-            h1.createCell(0).setCellValue("Estado");
-            h1.getCell(0).setCellStyle(headerStyle);
-            h1.createCell(1).setCellValue("Total");
-            h1.getCell(1).setCellStyle(headerStyle);
-
-            for (Map.Entry<String, Integer> entry : reservasPorEstado.entrySet()) {
-                Row r = sheet1.createRow(rowIdx++);
-                r.createCell(0).setCellValue(entry.getKey());
-                r.createCell(1).setCellValue(entry.getValue());
-            }
-
-            sheet1.autoSizeColumn(0);
-            sheet1.autoSizeColumn(1);
-
-            // HOJA 2
-            Sheet sheet2 = workbook.createSheet("Por Recurso");
-            rowIdx = 0;
-
-            Row h2 = sheet2.createRow(rowIdx++);
-            h2.createCell(0).setCellValue("Recurso");
-            h2.getCell(0).setCellStyle(headerStyle);
-            h2.createCell(1).setCellValue("Total");
-            h2.getCell(1).setCellStyle(headerStyle);
-
-            for (Map.Entry<String, Integer> entry : reservasPorRecurso.entrySet()) {
-                Row r = sheet2.createRow(rowIdx++);
-                r.createCell(0).setCellValue(entry.getKey());
-                r.createCell(1).setCellValue(entry.getValue());
-            }
-
-            sheet2.autoSizeColumn(0);
-            sheet2.autoSizeColumn(1);
-
-            workbook.write(out);
         }
     }
 
@@ -226,21 +196,23 @@ public class ReporteExportServlet extends HttpServlet {
         datos.forEach(dataset::setValue);
 
         JFreeChart chart = ChartFactory.createPieChart("", dataset, false, false, false);
-
         PiePlot plot = (PiePlot) chart.getPlot();
+
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);
         plot.setShadowPaint(null);
+
         plot.setLabelFont(new Font("Arial", Font.PLAIN, 10));
 
         return chart.createBufferedImage(450, 300);
     }
 
     // ============================================================
-    // EXPORTAR PDF
+    // EXPORTAR PDF (CON 3 GRÁFICOS)
     // ============================================================
     private void exportarPDF(Map<String, Integer> reservasPorEstado,
                              Map<String, Integer> reservasPorRecurso,
+                             Map<String, Integer> reservasPorTipo,
                              HttpServletResponse response) throws IOException {
 
         response.setContentType("application/pdf");
@@ -253,9 +225,9 @@ public class ReporteExportServlet extends HttpServlet {
             PdfWriter writer = PdfWriter.getInstance(document, out);
             document.open();
 
-            // PORTADA ESTILO POWER BI
+            // PORTADA
             Paragraph titulo = new Paragraph("Reporte de Reservas",
-                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20));
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, PDF_VERDE));
             titulo.setAlignment(Element.ALIGN_CENTER);
 
             Paragraph subtitulo = new Paragraph("Sistema ReservaEspacios",
@@ -267,7 +239,7 @@ public class ReporteExportServlet extends HttpServlet {
             fecha.setAlignment(Element.ALIGN_CENTER);
 
             LineSeparator ls = new LineSeparator();
-            ls.setLineColor(new com.itextpdf.text.BaseColor(0, 72, 43));
+            ls.setLineColor(PDF_VERDE);
             ls.setLineWidth(2f);
 
             document.add(titulo);
@@ -277,60 +249,148 @@ public class ReporteExportServlet extends HttpServlet {
             document.add(ls);
             document.add(new Paragraph(" "));
 
-            // TABLA ESTADO
-            if (!reservasPorEstado.isEmpty()) {
-                document.add(new Paragraph("Reservas por Estado",
-                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+            // ===================================================
+            // TABLAS + ESTILOS
+            // ===================================================
+            agregarTablaPDF(document, "Reservas por Estado", reservasPorEstado);
+            agregarTablaPDF(document, "Reservas por Recurso", reservasPorRecurso);
+            agregarTablaPDF(document, "Reservas por Tipo", reservasPorTipo);
 
-                PdfPTable table1 = new PdfPTable(2);
-                table1.setWidthPercentage(100);
-                table1.addCell("Estado");
-                table1.addCell("Total");
-
-                reservasPorEstado.forEach((k, v) -> {
-                    table1.addCell(k);
-                    table1.addCell(String.valueOf(v));
-                });
-
-                document.add(table1);
-                document.add(new Paragraph(" "));
-            }
-
-            // TABLA RECURSOS
-            if (!reservasPorRecurso.isEmpty()) {
-                document.add(new Paragraph("Reservas por Recurso",
-                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
-
-                PdfPTable table2 = new PdfPTable(2);
-                table2.setWidthPercentage(100);
-                table2.addCell("Recurso");
-                table2.addCell("Total");
-
-                reservasPorRecurso.forEach((k, v) -> {
-                    table2.addCell(k);
-                    table2.addCell(String.valueOf(v));
-                });
-
-                document.add(table2);
-                document.add(new Paragraph(" "));
-            }
-
-            // GRÁFICO
-            if (!reservasPorEstado.isEmpty()) {
-                document.add(new Paragraph("Distribución de Reservas por Estado",
-                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
-
-                BufferedImage image = crearGrafico(reservasPorEstado);
-                com.itextpdf.text.Image img = com.itextpdf.text.Image.getInstance(writer, image, 1);
-                img.scaleToFit(350, 250);
-                img.setAlignment(Element.ALIGN_CENTER);
-                document.add(img);
-            }
+            // ===================================================
+            // GRÁFICOS
+            // ===================================================
+            agregarGraficoPDF(document, writer, "Distribución por Estado", reservasPorEstado);
+            agregarGraficoPDF(document, writer, "Uso por Recurso", reservasPorRecurso);
+            agregarGraficoPDF(document, writer, "Distribución por Tipo", reservasPorTipo);
 
             document.close();
 
         } catch (Exception e) {
             throw new IOException("Error generando PDF", e);
         }
+    }
+
+    // ============================================================
+    // TABLAS PDF con estilo corporativo
+    // ============================================================
+    private void agregarTablaPDF(Document document, String titulo, Map<String, Integer> datos)
+            throws Exception {
+
+        if (datos.isEmpty()) return;
+
+        document.add(new Paragraph(titulo,
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, PDF_VERDE)));
+
+        PdfPTable tabla = new PdfPTable(2);
+        tabla.setWidthPercentage(100);
+
+        PdfPCell h1 = new PdfPCell(new Paragraph("Categoría",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, com.itextpdf.text.BaseColor.WHITE)));
+        h1.setBackgroundColor(PDF_VERDE);
+        h1.setPadding(6);
+
+        PdfPCell h2 = new PdfPCell(new Paragraph("Total",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, com.itextpdf.text.BaseColor.WHITE)));
+        h2.setBackgroundColor(PDF_VERDE);
+        h2.setPadding(6);
+
+        tabla.addCell(h1);
+        tabla.addCell(h2);
+
+        boolean par = false;
+
+        for (Map.Entry<String, Integer> e : datos.entrySet()) {
+
+            com.itextpdf.text.BaseColor fondo =
+                    par ? new com.itextpdf.text.BaseColor(245, 255, 244) : com.itextpdf.text.BaseColor.WHITE;
+            par = !par;
+
+            PdfPCell c1 = new PdfPCell(new Paragraph(e.getKey()));
+            c1.setPadding(5);
+            c1.setBackgroundColor(fondo);
+
+            PdfPCell c2 = new PdfPCell(new Paragraph(String.valueOf(e.getValue())));
+            c2.setPadding(5);
+            c2.setBackgroundColor(fondo);
+
+            tabla.addCell(c1);
+            tabla.addCell(c2);
+        }
+
+        document.add(tabla);
+        document.add(new Paragraph(" "));
+    }
+
+    // ============================================================
+    // GRÁFICOS PDF
+    // ============================================================
+    private void agregarGraficoPDF(Document document, PdfWriter writer,
+                                   String titulo, Map<String, Integer> datos)
+            throws Exception {
+
+        if (datos.isEmpty()) return;
+
+        document.add(new Paragraph(titulo,
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, PDF_VERDE)));
+
+        BufferedImage img = crearGrafico(datos);
+        com.itextpdf.text.Image pdfImg =
+                com.itextpdf.text.Image.getInstance(writer, img, 1);
+
+        pdfImg.scaleToFit(350, 250);
+        pdfImg.setAlignment(Element.ALIGN_CENTER);
+
+        document.add(pdfImg);
+        document.add(new Paragraph(" "));
+    }
+
+    // ============================================================
+    // EXPORTAR EXCEL (3 hojas)
+    // ============================================================
+    private void exportarExcel(Map<String, Integer> reservasPorEstado,
+                               Map<String, Integer> reservasPorRecurso,
+                               Map<String, Integer> reservasPorTipo,
+                               HttpServletResponse response) throws IOException {
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=reporte_reservas.xlsx");
+
+        try (Workbook workbook = new XSSFWorkbook();
+             OutputStream out = response.getOutputStream()) {
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 12);
+            headerStyle.setFont(headerFont);
+
+            crearHojaExcel(workbook, "Por Estado", reservasPorEstado, headerStyle);
+            crearHojaExcel(workbook, "Por Recurso", reservasPorRecurso, headerStyle);
+            crearHojaExcel(workbook, "Por Tipo", reservasPorTipo, headerStyle);
+
+            workbook.write(out);
+        }
+    }
+
+    private void crearHojaExcel(Workbook workbook, String nombre, Map<String, Integer> datos,
+                                CellStyle headerStyle) {
+
+        Sheet sheet = workbook.createSheet(nombre);
+        int rowIdx = 0;
+
+        Row h = sheet.createRow(rowIdx++);
+        h.createCell(0).setCellValue("Categoría");
+        h.getCell(0).setCellStyle(headerStyle);
+        h.createCell(1).setCellValue("Total");
+        h.getCell(1).setCellStyle(headerStyle);
+
+        for (Map.Entry<String, Integer> e : datos.entrySet()) {
+            Row r = sheet.createRow(rowIdx++);
+            r.createCell(0).setCellValue(e.getKey());
+            r.createCell(1).setCellValue(e.getValue());
+        }
+
+        sheet.autoSizeColumn(0);
+        sheet.autoSizeColumn(1);
     }
 }
