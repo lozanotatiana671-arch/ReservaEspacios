@@ -17,39 +17,34 @@ public class ReporteServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         // ------------------------------
-        // Filtros EXACTOS del JSP
+        // Filtros EXACTOS DEL JSP
         // ------------------------------
         String fechaInicio = request.getParameter("fechaInicio");
-        String fechaFin = request.getParameter("fechaFin");
-        String tipoEspacio = request.getParameter("tipo");        // ✔ JSP usa name="tipo"
-        String estadoRecurso = request.getParameter("estado");    // ✔ JSP usa name="estado"
+        String fechaFin    = request.getParameter("fechaFin");
+        String tipoEspacio = request.getParameter("tipo");      
+        String estadoReserva = request.getParameter("estado");   // AHORA ES EL ESTADO REAL DE RESERVAS
 
-        // Mantener filtros en el JSP
+        // Mantener valores en JSP
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
         request.setAttribute("tipo", tipoEspacio);
-        request.setAttribute("estado", estadoRecurso);
+        request.setAttribute("estado", estadoReserva);
 
         // ------------------------------
-        // Estructuras para el JSP
+        // Estructuras de datos
         // ------------------------------
-        Map<String, Integer> reservasPorEstado = new LinkedHashMap<>();
+        Map<String, Integer> reservasPorEstado  = new LinkedHashMap<>();
         Map<String, Integer> reservasPorRecurso = new LinkedHashMap<>();
-        Map<String, Integer> reservasPorTipo = new LinkedHashMap<>();
+        Map<String, Integer> reservasPorTipo    = new LinkedHashMap<>();
         List<Map<String, Object>> listaRecursos = new ArrayList<>();
 
         try (Connection con = ConexionDB.getConnection()) {
 
             boolean tieneFecha = fechaInicio != null && !fechaInicio.isEmpty()
-                    && fechaFin != null && !fechaFin.isEmpty();
-
-            // Convertir filtro visual → valor real en BD
-            String estadoBD = null;
-            if ("ACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "DISPONIBLE";
-            if ("INACTIVO".equalsIgnoreCase(estadoRecurso)) estadoBD = "OCUPADO";
+                              && fechaFin != null    && !fechaFin.isEmpty();
 
             // =====================================================
-            // 1. RESERVAS POR ESTADO
+            // 1. RESERVAS POR ESTADO (APROBADA / PENDIENTE / PRESTADO / FINALIZADO)
             // =====================================================
             StringBuilder sqlEstado = new StringBuilder(
                 "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
@@ -57,6 +52,9 @@ public class ReporteServlet extends HttpServlet {
 
             if (tieneFecha)
                 sqlEstado.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlEstado.append(" AND r.estado = ? ");
 
             sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
 
@@ -67,6 +65,10 @@ public class ReporteServlet extends HttpServlet {
                 if (tieneFecha) {
                     ps.setString(idx++, fechaInicio);
                     ps.setString(idx++, fechaFin);
+                }
+
+                if (estadoReserva != null && !estadoReserva.isEmpty()) {
+                    ps.setString(idx++, estadoReserva);
                 }
 
                 ResultSet rs = ps.executeQuery();
@@ -89,8 +91,8 @@ public class ReporteServlet extends HttpServlet {
             if (tipoEspacio != null && !tipoEspacio.isEmpty())
                 sqlRecurso.append(" AND rc.tipo = ? ");
 
-            if (estadoBD != null)
-                sqlRecurso.append(" AND rc.estado = ? ");
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlRecurso.append(" AND r.estado = ? ");
 
             sqlRecurso.append(" GROUP BY rc.nombre ORDER BY total DESC ");
 
@@ -103,13 +105,11 @@ public class ReporteServlet extends HttpServlet {
                     ps.setString(idx++, fechaFin);
                 }
 
-                if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
+                if (tipoEspacio != null && !tipoEspacio.isEmpty())
                     ps.setString(idx++, tipoEspacio);
-                }
 
-                if (estadoBD != null) {
-                    ps.setString(idx++, estadoBD);
-                }
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(idx++, estadoReserva);
 
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -118,15 +118,18 @@ public class ReporteServlet extends HttpServlet {
             }
 
             // =====================================================
-            // 3. RESERVAS POR TIPO
+            // 3. RESERVAS POR TIPO DE ESPACIO
             // =====================================================
             StringBuilder sqlTipo = new StringBuilder(
-                "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
+                "SELECT rc.tipo, COUNT(*) AS total " +
                 "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id WHERE 1=1 "
             );
 
             if (tieneFecha)
                 sqlTipo.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlTipo.append(" AND r.estado = ? ");
 
             sqlTipo.append(" GROUP BY rc.tipo ORDER BY total DESC ");
 
@@ -138,6 +141,9 @@ public class ReporteServlet extends HttpServlet {
                     ps.setString(idx++, fechaInicio);
                     ps.setString(idx++, fechaFin);
                 }
+
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(idx++, estadoReserva);
 
                 ResultSet rs = ps.executeQuery();
 
@@ -151,31 +157,37 @@ public class ReporteServlet extends HttpServlet {
             // =====================================================
             StringBuilder sqlRecursos = new StringBuilder(
                 "SELECT rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
-                "FROM recursos rc WHERE 1=1 "
+                "FROM recursos rc JOIN reservas r ON r.recurso_id = rc.id WHERE 1=1 "
             );
 
-            List<Object> parametros = new ArrayList<>();
+            List<Object> params = new ArrayList<>();
 
             if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
                 sqlRecursos.append(" AND rc.tipo = ? ");
-                parametros.add(tipoEspacio);
+                params.add(tipoEspacio);
             }
 
-            if (estadoBD != null) {
-                sqlRecursos.append(" AND rc.estado = ? ");
-                parametros.add(estadoBD);
+            if (estadoReserva != null && !estadoReserva.isEmpty()) {
+                sqlRecursos.append(" AND r.estado = ? ");
+                params.add(estadoReserva);
             }
 
+            if (tieneFecha) {
+                sqlRecursos.append(" AND r.fecha BETWEEN CAST(? AS DATE) AND CAST(? AS DATE) ");
+                params.add(fechaInicio);
+                params.add(fechaFin);
+            }
+
+            sqlRecursos.append(" GROUP BY rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion ");
             sqlRecursos.append(" ORDER BY rc.nombre ASC ");
 
             try (PreparedStatement ps = con.prepareStatement(sqlRecursos.toString())) {
 
-                for (int i = 0; i < parametros.size(); i++) {
-                    ps.setObject(i + 1, parametros.get(i));
+                for (int i = 0; i < params.size(); i++) {
+                    ps.setObject(i + 1, params.get(i));
                 }
 
                 ResultSet rs = ps.executeQuery();
-
                 while (rs.next()) {
                     Map<String, Object> fila = new HashMap<>();
                     fila.put("nombre", rs.getString("nombre"));
