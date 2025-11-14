@@ -260,18 +260,20 @@
                     <label>Tipo</label>
                     <select name="tipo" class="form-control">
                         <option value="">Todos</option>
-                        <option value="SALON" <%= "SALON".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Salón</option>
+                        <option value="SALON"       <%= "SALON".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Salón</option>
                         <option value="LABORATORIO" <%= "LABORATORIO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Laboratorio</option>
-                        <option value="EQUIPO" <%= "EQUIPO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Equipo</option>
+                        <option value="EQUIPO"      <%= "EQUIPO".equals(v(request.getAttribute("tipo"))) ? "selected" : "" %>>Equipo</option>
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <label>Estado</label>
+                    <label>Estado de reserva</label>
                     <select name="estado" class="form-control">
                         <option value="">Todos</option>
-                        <option value="ACTIVO" <%= "ACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Activo</option>
-                        <option value="INACTIVO" <%= "INACTIVO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Inactivo</option>
+                        <option value="APROBADA"   <%= "APROBADA".equals(v(request.getAttribute("estado")))   ? "selected" : "" %>>Aprobada</option>
+                        <option value="PENDIENTE"  <%= "PENDIENTE".equals(v(request.getAttribute("estado")))  ? "selected" : "" %>>Pendiente</option>
+                        <option value="PRESTADO"   <%= "PRESTADO".equals(v(request.getAttribute("estado")))   ? "selected" : "" %>>Prestado</option>
+                        <option value="FINALIZADO" <%= "FINALIZADO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Finalizado</option>
                     </select>
                 </div>
 
@@ -347,7 +349,7 @@
         <% if (!listaRecursos.isEmpty()) { %>
         <div class="table-filter-card">
             <div class="table-filter-title">
-                <i class="fas fa-filter"></i> Filtro rápido de espacios
+                <i class="fas fa-filter"></i> Filtro rápido de espacios / reservas
             </div>
             <div class="form-row">
                 <div class="col-md-4 mb-2">
@@ -364,11 +366,13 @@
                     </select>
                 </div>
                 <div class="col-md-4 mb-2">
-                    <label>Estado</label>
+                    <label>Estado de reserva</label>
                     <select id="filtroEstadoTabla" class="form-control">
                         <option value="">Todos</option>
-                        <option value="DISPONIBLE">Disponible</option>
-                        <option value="OCUPADO">Ocupado</option>
+                        <option value="APROBADA">Aprobada</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PRESTADO">Prestado</option>
+                        <option value="FINALIZADO">Finalizado</option>
                     </select>
                 </div>
             </div>
@@ -536,8 +540,8 @@ if (labelsRecurso.length > 0) {
                     grid: { color: "rgba(0,0,0,0.05)" }
                 },
                 x: { 
-                    ticks: { display: false },   // ❌ OCULTA LAS ETIQUETAS DEL EJE X
-                    grid: { display: false }     // ❌ OCULTA LA LÍNEA DE BASE
+                    ticks: { display: false },   // ocultamos texto bajo las barras
+                    grid: { display: false }
                 }
             }
         }
@@ -623,7 +627,7 @@ function aplicarPaginacion() {
     pagination.appendChild(btnNext);
 }
 
-/* Filtro de tabla (texto, tipo, estado) */
+/* Filtro de tabla (texto, tipo, estado de reserva) */
 function aplicarFiltrosTabla() {
     if (!table) return;
     const texto   = document.getElementById("filtroTextoTabla")  ? document.getElementById("filtroTextoTabla").value.toLowerCase() : "";
