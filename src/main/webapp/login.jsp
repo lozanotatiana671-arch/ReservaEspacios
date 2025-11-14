@@ -119,10 +119,11 @@
         </p>
     </div>
 
-    <!-- Footer -->
-    <footer class="text-center">
-        <p>foother</p>
-    </footer>
+
+    <!-- 🔹 Footer -->
+<footer class="text-white text-center p-3 mt-5 bg-dark">
+  <p>&copy; 2025 Sistema de Reservas - Todos los derechos reservados</p>
+</footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
