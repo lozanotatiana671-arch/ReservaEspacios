@@ -270,10 +270,26 @@
                     <label>Estado de reserva</label>
                     <select name="estado" class="form-control">
                         <option value="">Todos</option>
-                        <option value="APROBADA"   <%= "APROBADA".equals(v(request.getAttribute("estado")))   ? "selected" : "" %>>Aprobada</option>
-                        <option value="PENDIENTE"  <%= "PENDIENTE".equals(v(request.getAttribute("estado")))  ? "selected" : "" %>>Pendiente</option>
-                        <option value="PRESTADO"   <%= "PRESTADO".equals(v(request.getAttribute("estado")))   ? "selected" : "" %>>Prestado</option>
-                        <option value="FINALIZADO" <%= "FINALIZADO".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>Finalizado</option>
+                       <option value="Aprobada"
+        <%= "Aprobada".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>
+        Aprobada
+</option>
+
+<option value="Pendiente"
+        <%= "Pendiente".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>
+        Pendiente
+</option>
+
+<option value="Prestado"
+        <%= "Prestado".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>
+        Prestado
+</option>
+
+<option value="Finalizado"
+        <%= "Finalizado".equals(v(request.getAttribute("estado"))) ? "selected" : "" %>>
+        Finalizado
+</option>
+
                     </select>
                 </div>
 
