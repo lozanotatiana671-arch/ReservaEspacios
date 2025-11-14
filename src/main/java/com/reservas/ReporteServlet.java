@@ -155,37 +155,51 @@ public class ReporteServlet extends HttpServlet {
             // ============================
             // 4. TABLA DE RECURSOS
             // ============================
-            StringBuilder sqlRecursos = new StringBuilder(
-                "SELECT rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
-                "FROM recursos rc WHERE 1=1 "
-            );
+// ============================
+// 4. TABLA DE RECURSOS (FILTRANDO ESTADO REAL DE RESERVA)
+// ============================
+StringBuilder sqlRecursos = new StringBuilder(
+    "SELECT rc.nombre, rc.tipo, r.estado AS estado_reserva, " +
+    "rc.tarifa, rc.ubicacion " +
+    "FROM reservas r " +
+    "JOIN recursos rc ON r.recurso_id = rc.id " +
+    "WHERE 1=1 "
+);
 
-            if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
-                sqlRecursos.append(" AND rc.tipo = ? ");
-            }
+List<Object> params = new ArrayList<>();
 
-            sqlRecursos.append(" ORDER BY rc.nombre ASC ");
+// FILTRO POR TIPO DE ESPACIO
+if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
+    sqlRecursos.append(" AND rc.tipo = ? ");
+    params.add(tipoEspacio);
+}
 
-            try (PreparedStatement ps = con.prepareStatement(sqlRecursos.toString())) {
+// FILTRO POR ESTADO REAL DE RESERVA
+if (estadoReserva != null && !estadoReserva.isEmpty()) {
+    sqlRecursos.append(" AND UPPER(r.estado) = ? ");
+    params.add(estadoReserva);
+}
 
-                int idx = 1;
+sqlRecursos.append(" ORDER BY rc.nombre ASC ");
 
-                if (tipoEspacio != null && !tipoEspacio.isEmpty()) {
-                    ps.setString(idx++, tipoEspacio);
-                }
+try (PreparedStatement ps = con.prepareStatement(sqlRecursos.toString())) {
 
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    Map<String,Object> fila = new HashMap<>();
-                    fila.put("nombre", rs.getString("nombre"));
-                    fila.put("tipo", rs.getString("tipo"));
-                    fila.put("estado", rs.getString("estado"));
-                    fila.put("capacidad", rs.getInt("capacidad"));
-                    fila.put("tarifa", rs.getDouble("tarifa"));
-                    fila.put("ubicacion", rs.getString("ubicacion"));
-                    listaRecursos.add(fila);
-                }
-            }
+    for (int i = 0; i < params.size(); i++) {
+        ps.setObject(i+1, params.get(i));
+    }
+
+    ResultSet rs = ps.executeQuery();
+    while (rs.next()) {
+        Map<String,Object> fila = new HashMap<>();
+        fila.put("nombre", rs.getString("nombre"));
+        fila.put("tipo", rs.getString("tipo"));
+        fila.put("estado", rs.getString("estado_reserva")); // <-- ESTADO REAL
+        fila.put("tarifa", rs.getDouble("tarifa"));
+        fila.put("ubicacion", rs.getString("ubicacion"));
+        listaRecursos.add(fila);
+    }
+}
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,3 +214,4 @@ public class ReporteServlet extends HttpServlet {
         request.getRequestDispatcher("reporte.jsp").forward(request, response);
     }
 }
+
