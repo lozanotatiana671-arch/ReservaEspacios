@@ -20,7 +20,7 @@ public class ReporteServlet extends HttpServlet {
         String fechaInicio = request.getParameter("fechaInicio");
         String fechaFin = request.getParameter("fechaFin");
         String tipoEspacio = request.getParameter("tipo");
-        String estadoReserva = request.getParameter("estado"); // APROBADA, PENDIENTE...
+        String estadoReserva = request.getParameter("estado"); // Aprobada, Finalizado...
 
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
@@ -37,18 +37,16 @@ public class ReporteServlet extends HttpServlet {
             boolean filtrarFecha = fechaInicio != null && !fechaInicio.isEmpty()
                     && fechaFin != null && !fechaFin.isEmpty();
 
-            // -----------------------------------------
+            // ============================
             // 1. DISTRIBUCIÓN POR ESTADO
-            // -----------------------------------------
+            // SIN filtrar por estado
+            // ============================
             StringBuilder sqlEstado = new StringBuilder(
                 "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
             );
 
             if (filtrarFecha)
-                sqlEstado.append(" AND r.fecha BETWEEN ?::DATE AND ?::DATE ");
-
-            if (estadoReserva != null && !estadoReserva.isEmpty())
-                sqlEstado.append(" AND r.estado = ? ");
+                sqlEstado.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
 
             sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
 
@@ -57,12 +55,9 @@ public class ReporteServlet extends HttpServlet {
                 int idx = 1;
 
                 if (filtrarFecha) {
-                    ps.setString(idx++, fechaInicio);
-                    ps.setString(idx++, fechaFin);
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaInicio));
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaFin));
                 }
-
-                if (estadoReserva != null && !estadoReserva.isEmpty())
-                    ps.setString(idx++, estadoReserva);
 
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -70,9 +65,9 @@ public class ReporteServlet extends HttpServlet {
                 }
             }
 
-            // -----------------------------------------
+            // ============================
             // 2. CANTIDAD POR RECURSO
-            // -----------------------------------------
+            // ============================
             StringBuilder sqlRecurso = new StringBuilder(
                 "SELECT rc.nombre AS recurso, COUNT(*) AS total " +
                 "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id " +
@@ -80,7 +75,7 @@ public class ReporteServlet extends HttpServlet {
             );
 
             if (filtrarFecha)
-                sqlRecurso.append(" AND r.fecha BETWEEN ?::DATE AND ?::DATE ");
+                sqlRecurso.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
 
             if (tipoEspacio != null && !tipoEspacio.isEmpty())
                 sqlRecurso.append(" AND rc.tipo = ? ");
@@ -95,8 +90,8 @@ public class ReporteServlet extends HttpServlet {
                 int idx = 1;
 
                 if (filtrarFecha) {
-                    ps.setString(idx++, fechaInicio);
-                    ps.setString(idx++, fechaFin);
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaInicio));
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaFin));
                 }
 
                 if (tipoEspacio != null && !tipoEspacio.isEmpty())
@@ -111,9 +106,9 @@ public class ReporteServlet extends HttpServlet {
                 }
             }
 
-            // -----------------------------------------
+            // ============================
             // 3. DISTRIBUCIÓN POR TIPO
-            // -----------------------------------------
+            // ============================
             StringBuilder sqlTipo = new StringBuilder(
                 "SELECT rc.tipo AS tipo, COUNT(*) AS total " +
                 "FROM reservas r JOIN recursos rc ON r.recurso_id = rc.id " +
@@ -121,7 +116,7 @@ public class ReporteServlet extends HttpServlet {
             );
 
             if (filtrarFecha)
-                sqlTipo.append(" AND r.fecha BETWEEN ?::DATE AND ?::DATE ");
+                sqlTipo.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
 
             if (estadoReserva != null && !estadoReserva.isEmpty())
                 sqlTipo.append(" AND r.estado = ? ");
@@ -133,8 +128,8 @@ public class ReporteServlet extends HttpServlet {
                 int idx = 1;
 
                 if (filtrarFecha) {
-                    ps.setString(idx++, fechaInicio);
-                    ps.setString(idx++, fechaFin);
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaInicio));
+                    ps.setDate(idx++, java.sql.Date.valueOf(fechaFin));
                 }
 
                 if (estadoReserva != null && !estadoReserva.isEmpty())
@@ -146,9 +141,9 @@ public class ReporteServlet extends HttpServlet {
                 }
             }
 
-            // -----------------------------------------
-            // 4. TABLA RECURSOS
-            // -----------------------------------------
+            // ============================
+            // 4. TABLA DE RECURSOS
+            // ============================
             StringBuilder sqlRecursos = new StringBuilder(
                 "SELECT rc.nombre, rc.tipo, rc.estado, rc.capacidad, rc.tarifa, rc.ubicacion " +
                 "FROM recursos rc WHERE 1=1 "
