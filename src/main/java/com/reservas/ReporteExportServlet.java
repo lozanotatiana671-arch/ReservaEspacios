@@ -249,16 +249,12 @@ public class ReporteExportServlet extends HttpServlet {
             document.add(ls);
             document.add(new Paragraph(" "));
 
-            // ===================================================
-            // TABLAS + ESTILOS
-            // ===================================================
+            // TABLAS
             agregarTablaPDF(document, "Reservas por Estado", reservasPorEstado);
             agregarTablaPDF(document, "Reservas por Recurso", reservasPorRecurso);
             agregarTablaPDF(document, "Reservas por Tipo", reservasPorTipo);
 
-            // ===================================================
             // GRÁFICOS
-            // ===================================================
             agregarGraficoPDF(document, writer, "Distribución por Estado", reservasPorEstado);
             agregarGraficoPDF(document, writer, "Uso por Recurso", reservasPorRecurso);
             agregarGraficoPDF(document, writer, "Distribución por Tipo", reservasPorTipo);
@@ -270,9 +266,6 @@ public class ReporteExportServlet extends HttpServlet {
         }
     }
 
-    // ============================================================
-    // TABLAS PDF con estilo corporativo
-    // ============================================================
     private void agregarTablaPDF(Document document, String titulo, Map<String, Integer> datos)
             throws Exception {
 
@@ -321,9 +314,6 @@ public class ReporteExportServlet extends HttpServlet {
         document.add(new Paragraph(" "));
     }
 
-    // ============================================================
-    // GRÁFICOS PDF
-    // ============================================================
     private void agregarGraficoPDF(Document document, PdfWriter writer,
                                    String titulo, Map<String, Integer> datos)
             throws Exception {
@@ -345,7 +335,7 @@ public class ReporteExportServlet extends HttpServlet {
     }
 
     // ============================================================
-    // EXPORTAR EXCEL (3 hojas)
+    // EXPORTAR EXCEL
     // ============================================================
     private void exportarExcel(Map<String, Integer> reservasPorEstado,
                                Map<String, Integer> reservasPorRecurso,
@@ -392,5 +382,15 @@ public class ReporteExportServlet extends HttpServlet {
 
         sheet.autoSizeColumn(0);
         sheet.autoSizeColumn(1);
+    }
+
+    // ============================================================
+    // ✔ SOLUCIÓN ERROR 405 (botón PDF POST)
+    // ============================================================
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        doGet(request, response);
     }
 }
