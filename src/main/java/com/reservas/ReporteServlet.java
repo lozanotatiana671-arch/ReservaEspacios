@@ -22,6 +22,11 @@ public class ReporteServlet extends HttpServlet {
         String tipoEspacio = request.getParameter("tipo");
         String estadoReserva = request.getParameter("estado"); // Aprobada, Finalizado...
 
+        // Normalizar estado
+        if (estadoReserva != null && !estadoReserva.isEmpty()) {
+            estadoReserva = estadoReserva.toUpperCase().trim();
+        }
+
         request.setAttribute("fechaInicio", fechaInicio);
         request.setAttribute("fechaFin", fechaFin);
         request.setAttribute("tipo", tipoEspacio);
@@ -39,7 +44,7 @@ public class ReporteServlet extends HttpServlet {
 
             // ============================
             // 1. DISTRIBUCIÓN POR ESTADO
-            // SIN filtrar por estado
+            // FILTRA POR ESTADO
             // ============================
             StringBuilder sqlEstado = new StringBuilder(
                 "SELECT r.estado, COUNT(*) AS total FROM reservas r WHERE 1=1 "
@@ -47,6 +52,9 @@ public class ReporteServlet extends HttpServlet {
 
             if (filtrarFecha)
                 sqlEstado.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
+
+            if (estadoReserva != null && !estadoReserva.isEmpty())
+                sqlEstado.append(" AND UPPER(r.estado) = ? ");
 
             sqlEstado.append(" GROUP BY r.estado ORDER BY r.estado ");
 
@@ -58,6 +66,9 @@ public class ReporteServlet extends HttpServlet {
                     ps.setDate(idx++, java.sql.Date.valueOf(fechaInicio));
                     ps.setDate(idx++, java.sql.Date.valueOf(fechaFin));
                 }
+
+                if (estadoReserva != null && !estadoReserva.isEmpty())
+                    ps.setString(idx++, estadoReserva);
 
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -81,7 +92,7 @@ public class ReporteServlet extends HttpServlet {
                 sqlRecurso.append(" AND rc.tipo = ? ");
 
             if (estadoReserva != null && !estadoReserva.isEmpty())
-                sqlRecurso.append(" AND r.estado = ? ");
+                sqlRecurso.append(" AND UPPER(r.estado) = ? ");
 
             sqlRecurso.append(" GROUP BY rc.nombre ORDER BY total DESC ");
 
@@ -119,7 +130,7 @@ public class ReporteServlet extends HttpServlet {
                 sqlTipo.append(" AND r.fecha BETWEEN ?::date AND ?::date ");
 
             if (estadoReserva != null && !estadoReserva.isEmpty())
-                sqlTipo.append(" AND r.estado = ? ");
+                sqlTipo.append(" AND UPPER(r.estado) = ? ");
 
             sqlTipo.append(" GROUP BY rc.tipo ORDER BY total DESC ");
 
