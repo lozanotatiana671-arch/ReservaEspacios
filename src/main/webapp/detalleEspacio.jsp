@@ -6,7 +6,7 @@
     // ✅ Validar sesión de usuario
     HttpSession sesion = request.getSession(false);
     boolean usuarioLogueado = (sesion != null && sesion.getAttribute("usuarioId") != null);
-    
+
     String recursoIdParam = request.getParameter("recursoId");
     int recursoId = (recursoIdParam != null) ? Integer.parseInt(recursoIdParam) : 1;
 
@@ -49,201 +49,200 @@
     <link rel="stylesheet" href="css/tuespacio.css">
 </head>
 <body>
-    <% if (request.getAttribute("mensaje") != null) { %>
-        <div class="alert alert-info text-center" style="margin: 20px;">
-            <%= request.getAttribute("mensaje") %>
+
+<% if (request.getAttribute("mensaje") != null) { %>
+<div class="alert alert-info text-center" style="margin: 20px;">
+    <%= request.getAttribute("mensaje") %>
+</div>
+<% } %>
+
+<!-- 🔹 Navbar -->
+<%
+    if (usuarioLogueado) {
+%>
+    <%@ include file="navbarPrivado.jsp" %>
+<%
+    } else {
+%>
+    <%@ include file="navbarPublico.jsp" %>
+<%
+    }
+%>
+
+<!-- Imagen del espacio -->
+<div class="space-image-container">
+    <img src="<%= recurso.getImagen() != null ? recurso.getImagen() : "img/noimage.jpg" %>" 
+         alt="Imagen del espacio" class="space-image">
+</div>
+
+<!-- Barra de información -->
+<div class="space-info-bar">
+    <span><%= recurso.getNombre().toUpperCase() %></span>
+    <span>$<%= String.format("%,.0f", recurso.getTarifa()) %> / Hora</span>
+</div>
+
+<!-- Contenido principal -->
+<div class="container">
+    <!-- Columna izquierda -->
+    <div class="left-column">
+        <div class="space-icons">
+            <div class="icon-item">
+                <i class="fas fa-layer-group"></i>
+                <span class="icon-label"><%= recurso.getTipo() %></span>
+            </div>
+            <div class="icon-item">
+                <i class="far fa-calendar"></i>
+                <span class="icon-label"><%= java.time.Year.now() %></span>
+            </div>
+            <div class="icon-item">
+                <i class="fas fa-user-friends"></i>
+                <span class="icon-label"><%= recurso.getCapacidad() %> personas</span>
+            </div>
         </div>
-    <% } %>
 
-    <!-- 🔹 Navbar -->
-    <%
-        if (usuarioLogueado) {
-    %>
-        <%@ include file="navbarPrivado.jsp" %>
-    <% } else { %>
-        <%@ include file="navbarPublico.jsp" %>
-    <% } %>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="description">Descripción</div>
+            <div class="tab" data-tab="accessories">Accesorios</div>
+        </div>
 
-    <!-- Imagen del espacio -->
-    <div class="space-image-container">
-        <img src="<%= recurso.getImagen() != null ? recurso.getImagen() : "img/noimage.jpg" %>" 
-             alt="Imagen del espacio" class="space-image">
-    </div>
-
-    <!-- Barra de información -->
-    <div class="space-info-bar">
-        <span><%= recurso.getNombre().toUpperCase() %></span>
-        <span>$<%= String.format("%,.0f", recurso.getTarifa()) %> / Hora</span>
-    </div>
-
-    <!-- Contenido principal -->
-    <div class="container">
-        <!-- Columna izquierda -->
-        <div class="left-column">
-            <div class="space-icons">
-                <div class="icon-item">
-                    <i class="fas fa-layer-group"></i>
-                    <span class="icon-label"><%= recurso.getTipo() %></span>
-                </div>
-                <div class="icon-item">
-                    <i class="far fa-calendar"></i>
-                    <span class="icon-label"><%= java.time.Year.now() %></span>
-                </div>
-                <div class="icon-item">
-                    <i class="fas fa-user-friends"></i>
-                    <span class="icon-label"><%= recurso.getCapacidad() %> personas</span>
-                </div>
+        <!-- Contenido de pestañas -->
+        <div class="tab-content">
+            <div class="tab-pane active" id="description">
+                <p><%= recurso.getDescripcion() %></p>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">
+                    ID del recurso seleccionado: <strong><%= recurso.getId() %></strong>
+                </p>
             </div>
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <div class="tab active" data-tab="description">Descripción</div>
-                <div class="tab" data-tab="accessories">Accesorios</div>
-            </div>
-
-            <!-- Contenido de pestañas -->
-            <div class="tab-content">
-                <div class="tab-pane active" id="description">
-                    <p><%= recurso.getDescripcion() %></p>
-                    <p style="margin-top: 1rem; color: var(--text-secondary);">
-                        ID del recurso seleccionado: <strong><%= recurso.getId() %></strong>
-                    </p>
-                </div>
-
-                <!-- ✅ Check list interactivo -->
-                <div class="tab-pane" id="accessories">
-                    <div class="checklist">
-                        <div class="check-item" onclick="toggleCheck(this)">
-                            <div class="check-icon yes">✓</div>
-                            <span>Sillas</span>
-                        </div>
-                        <div class="check-item" onclick="toggleCheck(this)">
-                            <div class="check-icon yes">✓</div>
-                            <span>Micrófono</span>
-                        </div>
-                        <div class="check-item" onclick="toggleCheck(this)">
-                            <div class="check-icon yes">✓</div>
-                            <span>WiFi</span>
-                        </div>
-                        <div class="check-item" onclick="toggleCheck(this)">
-                            <div class="check-icon yes">✓</div>
-                            <span>Pantalla</span>
-                        </div>
+            <!-- ✅ Check list interactivo -->
+            <div class="tab-pane" id="accessories">
+                <div class="checklist">
+                    <div class="check-item" onclick="toggleCheck(this)">
+                        <div class="check-icon yes">✓</div>
+                        <span>Sillas</span>
+                    </div>
+                    <div class="check-item" onclick="toggleCheck(this)">
+                        <div class="check-icon yes">✓</div>
+                        <span>Micrófono</span>
+                    </div>
+                    <div class="check-item" onclick="toggleCheck(this)">
+                        <div class="check-icon yes">✓</div>
+                        <span>WiFi</span>
+                    </div>
+                    <div class="check-item" onclick="toggleCheck(this)">
+                        <div class="check-icon yes">✓</div>
+                        <span>Pantalla</span>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-      <!-- Columna derecha -->
-<div class="right-column">
-    <h3 class="titulo-reserva">Reservar ahora</h3>
+    <!-- Columna derecha -->
+    <div class="right-column">
+        <h3 class="titulo-reserva">Reservar ahora</h3>
 
-    <form id="formReserva" method="post" action="ReservaServlet">
-        <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
+        <!-- ✅ Un solo form -->
+        <form id="form-reserva" method="post" action="ReservaServlet">
+            <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
 
-        <div class="form-group">
-            <label class="form-label">Fecha</label>
-            <input type="date" name="fecha" id="fecha" class="form-input" required>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Fecha</label>
+                <input type="date" name="fecha" id="fecha" class="form-input" required>
+            </div>
 
-        <div class="form-group">
-            <label class="form-label">Hora de inicio</label>
-            <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Hora de inicio</label>
+                <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
+            </div>
 
-        <div class="form-group">
-            <label class="form-label">Hora de fin</label>
-            <input type="time" name="horaFin" id="horaFin" class="form-input" required>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Hora de fin</label>
+                <input type="time" name="horaFin" id="horaFin" class="form-input" required>
+            </div>
 
-        <!-- Aquí mostraremos el mensaje de conflicto -->
-        <div id="disponibilidad-container" style="margin-top:8px; font-size:0.9rem;"></div>
+            <button type="submit" class="btn-reserve">Haz tu reserva</button>
+        </form>
 
-        <button type="submit" class="btn-reserve">Haz tu reserva</button>
-    </form>
-</div></div>
+        <!-- Contenedor para mostrar mensajes de disponibilidad -->
+        <div id="disponibilidad-container" class="mt-2"></div>
+    </div>
+</div>
 
-    <footer class="footer">
-        © 2025 ReservaEspacios - Todos los derechos reservados
-    </footer>
+<footer class="footer">
+    © 2025 ReservaEspacios - Todos los derechos reservados
+</footer>
 
-    <script>
-        // Control de pestañas
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-                this.classList.add('active');
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
+<!-- 🔹 Bloqueo de reserva si el recurso ya está ocupado -->
+<script>
+document.getElementById("form-reserva").addEventListener("submit", async function(e) {
+    e.preventDefault(); // Detenemos envío temporalmente
 
-        // Check interactivo
-        function toggleCheck(element) {
-            const icon = element.querySelector('.check-icon');
-            if (icon.classList.contains('yes')) {
-                icon.classList.remove('yes');
-                icon.classList.add('no');
-                icon.textContent = '×';
-            } else {
-                icon.classList.remove('no');
-                icon.classList.add('yes');
-                icon.textContent = '✓';
-            }
+    const fecha = document.getElementById("fecha").value;
+    const inicio = document.getElementById("horaInicio").value;
+    const fin = document.getElementById("horaFin").value;
+    const recursoId = document.querySelector("input[name='recursoId']").value;
+    const contenedor = document.getElementById("disponibilidad-container");
+
+    if (!fecha || !inicio || !fin) {
+        alert("⚠ Debes seleccionar la fecha y ambas horas.");
+        return;
+    }
+
+    // Llamada al backend SOLO para consultar disponibilidad (usando tu servlet DisponibilidadServlet)
+    const url =
+      'DisponibilidadServlet?recursoId=' + encodeURIComponent(recursoId) +
+      '&fecha=' + encodeURIComponent(fecha) +
+      '&horaInicio=' + encodeURIComponent(inicio) +
+      '&horaFin=' + encodeURIComponent(fin);
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.disponible === false) {
+            contenedor.innerHTML = "<p class='text-danger'>❌ Este recurso ya está reservado en ese horario.</p>";
+            return;
         }
-    </script>
 
-    <!-- Validación de disponibilidad antes de enviar la reserva -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('formReserva');
-        if (!form) return;
+        // ✔ Si está disponible → limpiamos mensaje y enviamos el form
+        contenedor.innerHTML = "";
+        e.target.submit();
 
-        form.addEventListener("submit", async function(e) {
-            e.preventDefault(); // ⛔ Detenemos el envío temporalmente
+    } catch (error) {
+        console.error(error);
+        contenedor.innerHTML = "<p class='text-warning'>⚠ Error al verificar disponibilidad. Intenta de nuevo.</p>";
+    }
+});
+</script>
 
-            const fecha = document.getElementById("fecha").value;
-            const inicio = document.getElementById("horaInicio").value;
-            const fin = document.getElementById("horaFin").value;
-            const recursoId = document.querySelector("input[name='recursoId']").value;
-            const contenedor = document.getElementById("disponibilidad-container");
-
-            if (contenedor) contenedor.innerHTML = "";
-
-            // Validación básica
-            if (!fecha || !inicio || !fin) {
-                alert("⚠ Debes seleccionar la fecha y ambas horas.");
-                return;
-            }
-
-            // 🔹 Llamada al backend SOLO para consultar disponibilidad
-            const url = `DisponibilidadServlet?recursoId=${encodeURIComponent(recursoId)}&fecha=${encodeURIComponent(fecha)}&horaInicio=${encodeURIComponent(inicio)}&horaFin=${encodeURIComponent(fin)}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                console.log("Respuesta disponibilidad:", data);
-
-                if (data.disponible === false) {
-                    // ❌ Bloqueamos reserva si está ocupado
-                    alert("❌ Este recurso ya está reservado en ese horario.");
-                    if (contenedor) {
-                        contenedor.innerHTML = "<span style='color:#d9534f;'>❌ Este recurso ya está reservado en ese horario.</span>";
-                    }
-                    return;
-                }
-
-                // ✔ Si está disponible → enviamos el formulario normalmente
-                form.submit();
-
-            } catch (error) {
-                console.error(error);
-                alert("⚠ Error al verificar disponibilidad.");
-            }
+<script>
+    // Control de pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
         });
     });
-    </script>
+
+    // Check interactivo
+    function toggleCheck(element) {
+        const icon = element.querySelector('.check-icon');
+        if (icon.classList.contains('yes')) {
+            icon.classList.remove('yes');
+            icon.classList.add('no');
+            icon.textContent = '×';
+        } else {
+            icon.classList.remove('no');
+            icon.classList.add('yes');
+            icon.textContent = '✓';
+        }
+    }
+</script>
+
 </body>
 </html>
