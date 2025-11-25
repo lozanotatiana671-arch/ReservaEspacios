@@ -236,5 +236,44 @@
             }
         }
     </script>
+
+<script>
+document.querySelector("form[action='ReservaServlet']").addEventListener("submit", async function(e) {
+    e.preventDefault(); // ⛔ Detenemos el envío temporalmente
+
+    const fecha = document.getElementById("fecha").value;
+    const inicio = document.getElementById("horaInicio").value;
+    const fin = document.getElementById("horaFin").value;
+    const recursoId = document.querySelector("input[name='recursoId']").value;
+
+    // Validación básica
+    if (!fecha || !inicio || !fin) {
+        alert("⚠ Debes seleccionar la fecha y ambas horas.");
+        return;
+    }
+
+    // 🔹 Llamada al backend SOLO para consultar disponibilidad
+    const url = `ConsultarDisponibilidadServlet?recursoId=${recursoId}&fecha=${fecha}&horaInicio=${inicio}&horaFin=${fin}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.disponible === false) {
+            // ❌ Bloqueamos reserva si está ocupado (sin tocar backend)
+            alert("❌ Este recurso ya está reservado en ese horario.");
+            return;
+        }
+
+        // ✔ Si está disponible → enviamos el formulario normalmente
+        e.target.submit();
+
+    } catch (error) {
+        alert("⚠ Error al verificar disponibilidad.");
+        console.error(error);
+    }
+});
+</script>
+
 </body>
 </html>
