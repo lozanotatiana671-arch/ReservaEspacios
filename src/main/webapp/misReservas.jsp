@@ -64,63 +64,62 @@
 
 <body>
   <!-- 🔹 Sidebar -->
-<div class="sidebar">
-  <a class="navbar-brand" href="index.jsp">ReservaEspacios</a>
-  <ul class="nav flex-column mt-4">
+  <div class="sidebar">
+    <a class="navbar-brand" href="index.jsp">ReservaEspacios</a>
+    <ul class="nav flex-column mt-4">
 
-    <!-- Dashboard -->
-    <li class="nav-item">
-      <a class="nav-link" href="perfilUsuario.jsp">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-      </a>
-    </li>
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" href="perfilUsuario.jsp">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
 
-    <!-- Mis Reservas -->
-    <li class="nav-item">
-      <a class="nav-link" href="MisReservasServlet">
-        <i class="fas fa-calendar-check"></i>
-        <span>Mis Reservas</span>
-      </a>
-    </li>
+      <!-- Mis Reservas -->
+      <li class="nav-item">
+        <a class="nav-link" href="MisReservasServlet">
+          <i class="fas fa-calendar-check"></i>
+          <span>Mis Reservas</span>
+        </a>
+      </li>
 
-    <!-- Mis Testimonios -->
-    <li class="nav-item">
-      <a class="nav-link" href="misTestimonios.jsp">
-        <i class="fas fa-comment-dots"></i>
-        <span>Mis Testimonios</span>
-      </a>
-    </li>
+      <!-- Mis Testimonios -->
+      <li class="nav-item">
+        <a class="nav-link" href="misTestimonios.jsp">
+          <i class="fas fa-comment-dots"></i>
+          <span>Mis Testimonios</span>
+        </a>
+      </li>
 
-    <!-- Notificaciones -->
-    <li class="nav-item">
-      <a class="nav-link" href="notificaciones.jsp">
-        <i class="fas fa-bell"></i>
-        <span>Notificaciones</span>
-        <% if (notificacionesCount > 0) { %>
-          <span class="badge badge-warning badge-pill ml-2"><%= notificacionesCount %></span>
-        <% } %>
-      </a>
-    </li>
+      <!-- Notificaciones -->
+      <li class="nav-item">
+        <a class="nav-link" href="notificaciones.jsp">
+          <i class="fas fa-bell"></i>
+          <span>Notificaciones</span>
+          <% if (notificacionesCount > 0) { %>
+            <span class="badge badge-warning badge-pill ml-2"><%= notificacionesCount %></span>
+          <% } %>
+        </a>
+      </li>
 
-    <!-- Mi Perfil -->
-    <li class="nav-item">
-      <a class="nav-link" href="editarPerfil.jsp">
-        <i class="fas fa-user"></i>
-        <span>Mi Perfil</span>
-      </a>
-    </li>
+      <!-- Mi Perfil -->
+      <li class="nav-item">
+        <a class="nav-link" href="editarPerfil.jsp">
+          <i class="fas fa-user"></i>
+          <span>Mi Perfil</span>
+        </a>
+      </li>
 
-    <!-- Contáctenos -->
-    <li class="nav-item">
-      <a class="nav-link" href="contactenos.jsp">
-        <i class="fas fa-envelope"></i>
-        <span>Contáctenos</span>
-      </a>
-    </li>
-  </ul>
-</div>
-
+      <!-- Contáctenos -->
+      <li class="nav-item">
+        <a class="nav-link" href="contactenos.jsp">
+          <i class="fas fa-envelope"></i>
+          <span>Contáctenos</span>
+        </a>
+      </li>
+    </ul>
+  </div>
 
   <!-- 🔹 Contenido Principal -->
   <div class="content">
@@ -131,7 +130,8 @@
         <span>Bienvenido, <%= usuarioNombre %> 👋</span>
         <a href="LogoutServlet" class="btn btn-logout">Cerrar Sesión</a>
       </div>
-    </div><br><br><br>
+    </div>
+    <br><br><br>
 
     <!-- 🔹 Contenedor de Reservas -->
     <div class="reservation-container">
@@ -155,64 +155,73 @@
                     else if ("Cancelado".equalsIgnoreCase(estado)) claseEstado = "status cancelado";
                     else if ("Finalizado".equalsIgnoreCase(estado)) claseEstado = "status finalizado";
           %>
-<tr class="reservation-card">
-    <td class="reservation-info">
-        <h3><i class="fas fa-door-open"></i> 
-            <%= recurso != null ? recurso.getNombre() : "Recurso no encontrado" %>
-        </h3>
 
-        <% if (recurso != null) { %>
-            <p><i class="fas fa-map-marker-alt"></i> 
-                <strong>Ubicación:</strong> <%= recurso.getUbicacion() %>
-            </p>
-            <p><i class="fas fa-info-circle"></i> 
-                <strong>Descripción:</strong> <%= recurso.getDescripcion() %>
-            </p>
-            <p><i class="fas fa-users"></i> 
-                <strong>Capacidad:</strong> <%= recurso.getCapacidad() %> personas
-            </p>
-            <p><i class="fas fa-tag"></i> 
-                <strong>Tipo:</strong> <%= recurso.getTipo() %>
-            </p>
-            <p><i class="fas fa-dollar-sign"></i> 
-                <strong>Tarifa:</strong> $<%= recurso.getTarifa() %>
-            </p>
-        <% } %>
+          <tr class="reservation-card">
+            <td class="reservation-info">
+              <h3><i class="fas fa-door-open"></i>
+                <%= recurso != null ? recurso.getNombre() : "Recurso no encontrado" %>
+              </h3>
 
-        <p><i class="fas fa-calendar"></i> 
-            <strong>Fecha:</strong> <%= r.getFecha() %>
-        </p>
+              <% if (recurso != null) { %>
+                <p><i class="fas fa-map-marker-alt"></i>
+                  <strong>Ubicación:</strong> <%= recurso.getUbicacion() %>
+                </p>
+                <p><i class="fas fa-info-circle"></i>
+                  <strong>Descripción:</strong> <%= recurso.getDescripcion() %>
+                </p>
+                <p><i class="fas fa-users"></i>
+                  <strong>Capacidad:</strong> <%= recurso.getCapacidad() %> personas
+                </p>
+                <p><i class="fas fa-tag"></i>
+                  <strong>Tipo:</strong> <%= recurso.getTipo() %>
+                </p>
+                <p><i class="fas fa-dollar-sign"></i>
+                  <strong>Tarifa:</strong> $<%= recurso.getTarifa() %>
+                </p>
+              <% } %>
 
-        <p><i class="fas fa-clock"></i> 
-            <strong>Horario:</strong> <%= r.getHoraInicio() %> - <%= r.getHoraFin() %>
-        </p>
+              <p><i class="fas fa-calendar"></i>
+                <strong>Fecha:</strong> <%= r.getFecha() %>
+              </p>
 
-        <p><i class="fas fa-check-circle"></i> 
-            <strong>Estado:</strong>
-            <span class="<%= claseEstado %>"><%= estado %></span>
-        </p>
-    </td>
+              <p><i class="fas fa-clock"></i>
+                <strong>Horario:</strong> <%= r.getHoraInicio() %> - <%= r.getHoraFin() %>
+              </p>
 
-    <td class="reservation-actions">
-        <%
-            String estadoReserva = r.getEstado();
-            if ("APROBADA".equalsIgnoreCase(estadoReserva) ||
-                "APROBADO".equalsIgnoreCase(estadoReserva) ||
-                "FINALIZADA".equalsIgnoreCase(estadoReserva) ||
-                "FINALIZADO".equalsIgnoreCase(estadoReserva)) {
-        %>
+              <p><i class="fas fa-check-circle"></i>
+                <strong>Estado:</strong>
+                <span class="<%= claseEstado %>"><%= estado %></span>
+              </p>
+            </td>
 
-        <form action="testimonio.jsp" method="get" style="display:inline;">
-            <input type="hidden" name="recursoId" value="<%= r.getRecursoId() %>">
-            <button type="submit" class="action-btn btn-testimonio">
-                <i class="fas fa-comment"></i> Testimonio
-            </button>
-        </form>
+            <td class="reservation-actions">
+              <%
+                String estadoReserva = r.getEstado();
+                if ("APROBADA".equalsIgnoreCase(estadoReserva) ||
+                    "APROBADO".equalsIgnoreCase(estadoReserva) ||
+                    "FINALIZADA".equalsIgnoreCase(estadoReserva) ||
+                    "FINALIZADO".equalsIgnoreCase(estadoReserva)) {
+              %>
+              <form action="testimonio.jsp" method="get" style="display:inline;">
+                <input type="hidden" name="recursoId" value="<%= r.getRecursoId() %>">
+                <button type="submit" class="action-btn btn-testimonio">
+                  <i class="fas fa-comment"></i> Testimonio
+                </button>
+              </form>
+              <% } %>
+            </td>
+          </tr>
 
-        <% } %>
-    </td>
-</tr>
-
+          <%
+                } // fin for
+              } else {
+          %>
+          <tr>
+            <td colspan="2" class="text-center">No tienes reservas registradas.</td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
 
       <!-- 🔹 Paginación -->
       <div class="pagination text-center mt-3">
@@ -226,10 +235,6 @@
       </div>
     </div>
   </div>
-
-
-
-
 
   <!-- Bootstrap -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
