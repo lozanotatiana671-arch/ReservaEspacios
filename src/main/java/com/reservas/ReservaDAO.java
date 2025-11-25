@@ -8,7 +8,9 @@ public class ReservaDAO {
     // 🔹 Listar reservas
     public List<Reserva> listar() {
         List<Reserva> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre, TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha, hora_inicio, hora_fin, estado, usuario_id, recurso_id FROM reservas";
+        String sql = "SELECT id, nombre, TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha, " +
+                     "hora_inicio, hora_fin, estado, usuario_id, recurso_id " +
+                     "FROM reservas";
 
         try (Connection con = ConexionDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -52,17 +54,17 @@ public class ReservaDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-    e.printStackTrace();  // 👈 imprime la causa real en consola
-    throw new RuntimeException("Error SQL: " + e.getMessage(), e);
-}
+            e.printStackTrace();  // 👈 imprime la causa real en consola
+            throw new RuntimeException("Error SQL: " + e.getMessage(), e);
+        }
     }
 
-    // 🔹 Verificar conflicto de horario
+    // 🔹 Verificar conflicto de horario (ARREGLADO para que sí detecte choques)
     public boolean hayConflicto(int recursoId, java.sql.Date fecha, String horaInicio, String horaFin) {
         String sql = "SELECT hora_inicio, hora_fin FROM reservas " +
                      "WHERE recurso_id = ? " +
-                     "AND TRUNC(fecha) = TRUNC(?) " +
-                     "AND estado IN ('Pendiente', 'Aprobada', 'Prestado')";
+                     "AND fecha = ? " +  // ✅ compatible con DATE en PostgreSQL
+                     "AND UPPER(estado) IN ('PENDIENTE', 'APROBADA', 'PRESTADO')";
 
         try (Connection con = ConexionDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -78,7 +80,7 @@ public class ReservaDAO {
                     int inicioExistente = convertirAHorasMinutos(rs.getString("hora_inicio"));
                     int finExistente = convertirAHorasMinutos(rs.getString("hora_fin"));
 
-                    // Si hay superposición de rangos
+                    // ✅ Hay conflicto si los rangos SE SOLAPAN
                     if (!(finNueva <= inicioExistente || inicioNueva >= finExistente)) {
                         return true;
                     }
@@ -117,4 +119,3 @@ public class ReservaDAO {
         }
     }
 }
-
