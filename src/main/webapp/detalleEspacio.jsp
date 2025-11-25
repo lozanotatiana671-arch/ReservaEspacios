@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="com.reservas.Recurso, com.reservas.RecursoDAO, java.util.*" %>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
 
 <%
     // ✅ Validar sesión de usuario
@@ -30,9 +31,7 @@
         recurso.setTarifa(0);
         recurso.setImagen("img/noimage.jpg");
         recurso.setCapacidad(0);
-        
     }
-    
 %>
 
 <!DOCTYPE html>
@@ -45,27 +44,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/tuespacio.css">
 </head>
 <body>
     <% if (request.getAttribute("mensaje") != null) { %>
-    <div class="alert alert-info text-center" style="margin: 20px;">
-        <%= request.getAttribute("mensaje") %>
-    </div>
-<% } %>
+        <div class="alert alert-info text-center" style="margin: 20px;">
+            <%= request.getAttribute("mensaje") %>
+        </div>
+    <% } %>
 
-
-
-<!-- 🔹 Navbar -->
-<%
-    if (usuarioLogueado) {
-%>
-    <%@ include file="navbarPrivado.jsp" %>
-<% } else { %>
-    <%@ include file="navbarPublico.jsp" %>
-<% } %>
+    <!-- 🔹 Navbar -->
+    <%
+        if (usuarioLogueado) {
+    %>
+        <%@ include file="navbarPrivado.jsp" %>
+    <% } else { %>
+        <%@ include file="navbarPublico.jsp" %>
+    <% } %>
 
     <!-- Imagen del espacio -->
     <div class="space-image-container">
@@ -140,71 +137,32 @@
         <!-- Columna derecha -->
         <div class="right-column">
             <h3 class="titulo-reserva">Reservar ahora</h3>
-           <form method="post" action="ReservaServlet">
-<form method="post" action="ReservaServlet">
-  <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
 
-  <div class="form-group">
-    <label class="form-label">Fecha</label>
-    <input type="date" name="fecha" id="fecha" class="form-input" required>
-  </div>
+            <form id="formReserva" method="post" action="ReservaServlet">
+                <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
 
-  <div class="form-group">
-    <label class="form-label">Hora de inicio</label>
-    <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
-  </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" name="fecha" id="fecha" class="form-input" required>
+                </div>
 
-  <div class="form-group">
-    <label class="form-label">Hora de fin</label>
-    <input type="time" name="horaFin" id="horaFin" class="form-input" required>
-  </div>
+                <div class="form-group">
+                    <label class="form-label">Hora de inicio</label>
+                    <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
+                </div>
 
-  <button type="submit" class="btn-reserve">Haz tu reserva</button>
-</form>
+                <div class="form-group">
+                    <label class="form-label">Hora de fin</label>
+                    <input type="time" name="horaFin" id="horaFin" class="form-input" required>
+                </div>
 
+                <!-- Aquí mostraremos el mensaje de conflicto -->
+                <div id="disponibilidad-container" style="margin-top:8px; font-size:0.9rem;"></div>
 
+                <button type="submit" class="btn-reserve">Haz tu reserva</button>
+            </form>
         </div>
     </div>
-
-                
-<script>
-  // ✅ Consulta de disponibilidad en tiempo real
-  async function consultarDisponibilidad() {
-    const fecha = document.getElementById('fecha').value;
-    const hora = document.getElementById('hora').value;
-    const contenedor = document.getElementById('disponibilidad-container');
-
-    if (!fecha || !hora) {
-      contenedor.innerHTML = '';
-      return;
-    }
-
-    try {
-      const response = await fetch(`ConsultarDisponibilidadServlet?fecha=${fecha}&hora=${hora}`);
-      const data = await response.json();
-
-      if (data.length === 0) {
-        contenedor.innerHTML = "<p class='text-danger'>❌ No hay espacios disponibles en ese horario.</p>";
-        return;
-      }
-
-      let html = "<h6 class='text-success'>✔ Espacios disponibles:</h6>";
-      data.forEach(r => {
-        const color = (r.estado === 'DISPONIBLE') ? 'green' :
-                      (r.estado === 'EN_MANTENIMIENTO') ? 'orange' : 'red';
-        html += `<div style="border-left:4px solid ${color}; padding:5px; margin-bottom:3px;">
-                   <strong>${r.nombre}</strong> - ${r.mensaje}
-                 </div>`;
-      });
-
-      contenedor.innerHTML = html;
-
-    } catch (error) {
-      contenedor.innerHTML = "<p class='text-warning'>⚠ Error al consultar disponibilidad.</p>";
-    }
-  }
-</script>
-
 
     <footer class="footer">
         © 2025 ReservaEspacios - Todos los derechos reservados
@@ -237,43 +195,56 @@
         }
     </script>
 
-<script>
-document.querySelector("form[action='ReservaServlet']").addEventListener("submit", async function(e) {
-    e.preventDefault(); // ⛔ Detenemos el envío temporalmente
+    <!-- Validación de disponibilidad antes de enviar la reserva -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('formReserva');
+        if (!form) return;
 
-    const fecha = document.getElementById("fecha").value;
-    const inicio = document.getElementById("horaInicio").value;
-    const fin = document.getElementById("horaFin").value;
-    const recursoId = document.querySelector("input[name='recursoId']").value;
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault(); // ⛔ Detenemos el envío temporalmente
 
-    // Validación básica
-    if (!fecha || !inicio || !fin) {
-        alert("⚠ Debes seleccionar la fecha y ambas horas.");
-        return;
-    }
+            const fecha = document.getElementById("fecha").value;
+            const inicio = document.getElementById("horaInicio").value;
+            const fin = document.getElementById("horaFin").value;
+            const recursoId = document.querySelector("input[name='recursoId']").value;
+            const contenedor = document.getElementById("disponibilidad-container");
 
-    // 🔹 Llamada al backend SOLO para consultar disponibilidad
-    const url = `ConsultarDisponibilidadServlet?recursoId=${recursoId}&fecha=${fecha}&horaInicio=${inicio}&horaFin=${fin}`;
+            if (contenedor) contenedor.innerHTML = "";
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+            // Validación básica
+            if (!fecha || !inicio || !fin) {
+                alert("⚠ Debes seleccionar la fecha y ambas horas.");
+                return;
+            }
 
-        if (data.disponible === false) {
-            // ❌ Bloqueamos reserva si está ocupado (sin tocar backend)
-            alert("❌ Este recurso ya está reservado en ese horario.");
-            return;
-        }
+            // 🔹 Llamada al backend SOLO para consultar disponibilidad
+            const url = `DisponibilidadServlet?recursoId=${encodeURIComponent(recursoId)}&fecha=${encodeURIComponent(fecha)}&horaInicio=${encodeURIComponent(inicio)}&horaFin=${encodeURIComponent(fin)}`;
 
-        // ✔ Si está disponible → enviamos el formulario normalmente
-        e.target.submit();
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
 
-    } catch (error) {
-        alert("⚠ Error al verificar disponibilidad.");
-        console.error(error);
-    }
-});
-</script>
+                console.log("Respuesta disponibilidad:", data);
 
+                if (data.disponible === false) {
+                    // ❌ Bloqueamos reserva si está ocupado
+                    alert("❌ Este recurso ya está reservado en ese horario.");
+                    if (contenedor) {
+                        contenedor.innerHTML = "<span style='color:#d9534f;'>❌ Este recurso ya está reservado en ese horario.</span>";
+                    }
+                    return;
+                }
+
+                // ✔ Si está disponible → enviamos el formulario normalmente
+                form.submit();
+
+            } catch (error) {
+                console.error(error);
+                alert("⚠ Error al verificar disponibilidad.");
+            }
+        });
+    });
+    </script>
 </body>
 </html>
