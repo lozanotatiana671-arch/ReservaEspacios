@@ -155,56 +155,64 @@
                     else if ("Cancelado".equalsIgnoreCase(estado)) claseEstado = "status cancelado";
                     else if ("Finalizado".equalsIgnoreCase(estado)) claseEstado = "status finalizado";
           %>
+<tr class="reservation-card">
+    <td class="reservation-info">
+        <h3><i class="fas fa-door-open"></i> 
+            <%= recurso != null ? recurso.getNombre() : "Recurso no encontrado" %>
+        </h3>
 
-          <tr class="reservation-card">
-            <td class="reservation-info">
-              <h3><i class="fas fa-door-open"></i> <%= recurso != null ? recurso.getNombre() : "Recurso no encontrado" %></h3>
-              <% if (recurso != null) { %>
-                <p><i class="fas fa-map-marker-alt"></i> <strong>Ubicación:</strong> <%= recurso.getUbicacion() %></p>
-                <p><i class="fas fa-info-circle"></i> <strong>Descripción:</strong> <%= recurso.getDescripcion() %></p>
-                <p><i class="fas fa-users"></i> <strong>Capacidad:</strong> <%= recurso.getCapacidad() %> personas</p>
-                <p><i class="fas fa-tag"></i> <strong>Tipo:</strong> <%= recurso.getTipo() %></p>
-                <p><i class="fas fa-dollar-sign"></i> <strong>Tarifa:</strong> $<%= recurso.getTarifa() %></p>
-              <% } %>
-              <p><i class="fas fa-calendar"></i> <strong>Fecha:</strong> <%= r.getFecha() %></p>
-              <!-- ✅ Mostrar rango de horas -->
-              <p><i class="fas fa-clock"></i> <strong>Horario:</strong> <%= r.getHoraInicio() %> - <%= r.getHoraFin() %></p>
-              <p><i class="fas fa-check-circle"></i> <strong>Estado:</strong>
-                <span class="<%= claseEstado %>"><%= estado %></span>
-              </p>
-            </td>
-            <td class="reservation-actions">
-              <%
-    String estadoReserva = r.getEstado();
-    if ("APROBADA".equalsIgnoreCase(estadoReserva) ||
-        "APROBADO".equalsIgnoreCase(estadoReserva) ||
-        "FINALIZADA".equalsIgnoreCase(estadoReserva) ||
-        "FINALIZADO".equalsIgnoreCase(estadoReserva)) {
-%>
-<form action="testimonio.jsp" method="get" style="display:inline;">
-    <input type="hidden" name="recursoId" value="<%= r.getRecursoId() %>">
-    <button type="submit" class="action-btn btn-testimonio">
-        <i class="fas fa-comment"></i> Testimonio
-    </button>
-</form>
+        <% if (recurso != null) { %>
+            <p><i class="fas fa-map-marker-alt"></i> 
+                <strong>Ubicación:</strong> <%= recurso.getUbicacion() %>
+            </p>
+            <p><i class="fas fa-info-circle"></i> 
+                <strong>Descripción:</strong> <%= recurso.getDescripcion() %>
+            </p>
+            <p><i class="fas fa-users"></i> 
+                <strong>Capacidad:</strong> <%= recurso.getCapacidad() %> personas
+            </p>
+            <p><i class="fas fa-tag"></i> 
+                <strong>Tipo:</strong> <%= recurso.getTipo() %>
+            </p>
+            <p><i class="fas fa-dollar-sign"></i> 
+                <strong>Tarifa:</strong> $<%= recurso.getTarifa() %>
+            </p>
+        <% } %>
 
+        <p><i class="fas fa-calendar"></i> 
+            <strong>Fecha:</strong> <%= r.getFecha() %>
+        </p>
 
-<% } %>
+        <p><i class="fas fa-clock"></i> 
+            <strong>Horario:</strong> <%= r.getHoraInicio() %> - <%= r.getHoraFin() %>
+        </p>
 
+        <p><i class="fas fa-check-circle"></i> 
+            <strong>Estado:</strong>
+            <span class="<%= claseEstado %>"><%= estado %></span>
+        </p>
+    </td>
 
-              <!-- ❌ Botón de cancelar con JS dinámico -->
-              <button type="button" class="action-btn btn-cancelar"
-                      onclick="cancelarReserva(this, <%= r.getId() %>)">
-                  <i class="fas fa-times"></i> Cancelar
-              </button>
-            </td>
-          </tr>
+    <td class="reservation-actions">
+        <%
+            String estadoReserva = r.getEstado();
+            if ("APROBADA".equalsIgnoreCase(estadoReserva) ||
+                "APROBADO".equalsIgnoreCase(estadoReserva) ||
+                "FINALIZADA".equalsIgnoreCase(estadoReserva) ||
+                "FINALIZADO".equalsIgnoreCase(estadoReserva)) {
+        %>
 
-          <% } } else { %>
-            <tr><td colspan="2" class="text-center">No tienes reservas registradas.</td></tr>
-          <% } %>
-        </tbody>
-      </table>
+        <form action="testimonio.jsp" method="get" style="display:inline;">
+            <input type="hidden" name="recursoId" value="<%= r.getRecursoId() %>">
+            <button type="submit" class="action-btn btn-testimonio">
+                <i class="fas fa-comment"></i> Testimonio
+            </button>
+        </form>
+
+        <% } %>
+    </td>
+</tr>
+
 
       <!-- 🔹 Paginación -->
       <div class="pagination text-center mt-3">
@@ -219,32 +227,7 @@
     </div>
   </div>
 
-  <!-- ✅ Script Cancelar Reserva con alerta visual -->
-  <script>
-  function cancelarReserva(boton, idReserva) {
-    if (!confirm('¿Seguro que deseas cancelar esta reserva?')) return;
 
-    fetch(`CancelarReservaServlet?id=${idReserva}`)
-      .then(response => {
-        if (response.ok) {
-          const fila = boton.closest('.reservation-card');
-          if (fila) fila.remove();
-
-          const mensaje = document.createElement('div');
-          mensaje.className = 'alert alert-success text-center';
-          mensaje.style.margin = '10px 0';
-          mensaje.style.fontWeight = '600';
-          mensaje.textContent = '✅ Reserva cancelada exitosamente.';
-          document.querySelector('.reservation-container').prepend(mensaje);
-
-          setTimeout(() => mensaje.remove(), 3000);
-        } else {
-          alert('❌ Error al cancelar la reserva.');
-        }
-      })
-      .catch(() => alert('⚠️ No se pudo contactar con el servidor.'));
-  }
-  </script>
 
 
 
