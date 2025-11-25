@@ -153,6 +153,30 @@
     <% if (mostrarDisponibilidad) { %>
 
    <!-- 🔹 Sección de Disponibilidad Mensual -->
+
+<%
+    // 🔹 Fechas que el calendario debe marcar como ocupadas
+    java.util.List<String> fechasOcupadas = new java.util.ArrayList<>();
+
+    com.reservas.ReservaDAO reservaDAO_cal = new com.reservas.ReservaDAO();
+    java.util.List<com.reservas.Reserva> reservasCal = reservaDAO_cal.listar();
+
+    // 🔹 Si quieres que solo marque el recurso actual:
+    // int recursoIdCal = recursoId;
+
+    for (com.reservas.Reserva res : reservasCal) {
+        String estado = res.getEstado();
+        if (estado == null) continue;
+
+        // 🟡 Como NO usas "Cancelado" ni "Rechazado", todo estado es válido como ocupado
+        // 🟡 Si quieres filtrar por recurso, descomenta esto:
+        // if (res.getRecursoId() != recursoIdCal) continue;
+
+        // getFecha() ya viene en formato YYYY-MM-DD gracias a tu DAO
+        fechasOcupadas.add(res.getFecha());
+    }
+%>
+
 <div class="container disponibilidad-container mt-5" id="disponibilidad">
   <div class="row">
     <!-- 🗓️ Calendario -->
