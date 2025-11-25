@@ -134,35 +134,34 @@
             </div>
         </div>
 
-        <!-- Columna derecha -->
-        <div class="right-column">
-            <h3 class="titulo-reserva">Reservar ahora</h3>
+      <!-- Columna derecha -->
+<div class="right-column">
+    <h3 class="titulo-reserva">Reservar ahora</h3>
 
-            <form id="formReserva" method="post" action="ReservaServlet">
-                <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
+    <form id="formReserva" method="post" action="ReservaServlet">
+        <input type="hidden" name="recursoId" value="<%= recurso.getId() %>">
 
-                <div class="form-group">
-                    <label class="form-label">Fecha</label>
-                    <input type="date" name="fecha" id="fecha" class="form-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Hora de inicio</label>
-                    <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Hora de fin</label>
-                    <input type="time" name="horaFin" id="horaFin" class="form-input" required>
-                </div>
-
-                <!-- Aquí mostraremos el mensaje de conflicto -->
-                <div id="disponibilidad-container" style="margin-top:8px; font-size:0.9rem;"></div>
-
-                <button type="submit" class="btn-reserve">Haz tu reserva</button>
-            </form>
+        <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" name="fecha" id="fecha" class="form-input" required>
         </div>
-    </div>
+
+        <div class="form-group">
+            <label class="form-label">Hora de inicio</label>
+            <input type="time" name="horaInicio" id="horaInicio" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Hora de fin</label>
+            <input type="time" name="horaFin" id="horaFin" class="form-input" required>
+        </div>
+
+        <!-- Aquí mostraremos el mensaje de conflicto -->
+        <div id="disponibilidad-container" style="margin-top:8px; font-size:0.9rem;"></div>
+
+        <button type="submit" class="btn-reserve">Haz tu reserva</button>
+    </form>
+</div></div>
 
     <footer class="footer">
         © 2025 ReservaEspacios - Todos los derechos reservados
