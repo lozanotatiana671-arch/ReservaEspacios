@@ -114,7 +114,8 @@
       </small>
       <div class="preview-container mt-2">
       <% if (imagenAnterior != null && !imagenAnterior.isEmpty()) { %>
-      <img id="imgPreview" src="<%= request.getContextPath() %>/image/<%= imagenAnterior %>" class="preview-img rounded shadow-sm">
+      <!-- AHORA usa la URL completa almacenada en imagenAnterior -->
+      <img id="imgPreview" src="<%= imagenAnterior %>" class="preview-img rounded shadow-sm">
       <% } else { %>
       <img id="imgPreview" class="preview-img" style="display:none;">
       <% } %>
@@ -187,8 +188,8 @@
                 <td><%= b.getTitulo() %></td>
                 <td>
                   <% if (b.getImagen() != null && !b.getImagen().isEmpty()) { %>
-                   <img src="<%= request.getContextPath() %>/uploads/<%= b.getImagen() %>" width="120" alt="Banner">
-
+                   <!-- AHORA usa directamente la URL guardada en b.getImagen() -->
+                   <img src="<%= b.getImagen() %>" width="120" alt="Banner">
                   <% } %>
                 </td>
                 <td><i class="bi <%= b.isActivo() ? "bi-check-circle text-success" : "bi-x-circle text-danger" %>"></i> <%= b.isActivo() ? "Sí" : "No" %></td>
