@@ -71,8 +71,11 @@
 
 <!-- Imagen del espacio -->
 <div class="space-image-container">
-    <img src="<%= recurso.getImagen() != null ? recurso.getImagen() : "img/noimage.jpg" %>" 
-         alt="Imagen del espacio" class="space-image">
+    <img src="<%= recurso.getImagen().startsWith(\"http\") 
+            ? recurso.getImagen() 
+            : request.getContextPath() + \"/\" + recurso.getImagen() %>" 
+     alt="Imagen del espacio" class="space-image">
+
 </div>
 
 <!-- Barra de información -->
