@@ -1,7 +1,6 @@
 package com.reservas;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.List;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -16,7 +15,6 @@ import jakarta.servlet.annotation.*;
 public class BannerServlet extends HttpServlet {
 
     private BannerDAO dao = new BannerDAO();
-    private static final String UPLOAD_DIR = "uploads";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,6 +24,7 @@ public class BannerServlet extends HttpServlet {
         if (accion == null) accion = "listar";
 
         switch (accion) {
+
             case "listar":
                 List<Banner> lista = dao.listar();
                 request.setAttribute("banners", lista);
@@ -38,20 +37,17 @@ public class BannerServlet extends HttpServlet {
                 response.sendRedirect("BannerServlet?accion=listar");
                 break;
 
-           case "editar":
-    int idEditar = Integer.parseInt(request.getParameter("id"));
-    Banner b = dao.buscarPorId(idEditar);
+            case "editar":
+                int idEditar = Integer.parseInt(request.getParameter("id"));
+                Banner b = dao.buscarPorId(idEditar);
 
-    // 🔹 Volver a cargar la lista completa para mostrarla en el JSP
-    List<Banner> listaBanners = dao.listar();
+                List<Banner> listaBanners = dao.listar();
 
-    // 🔹 Enviar tanto el banner seleccionado como la lista completa
-    request.setAttribute("banner", b);
-    request.setAttribute("banners", listaBanners);
+                request.setAttribute("banner", b);
+                request.setAttribute("banners", listaBanners);
 
-    request.getRequestDispatcher("banners.jsp").forward(request, response);
-    break;
-
+                request.getRequestDispatcher("banners.jsp").forward(request, response);
+                break;
         }
     }
 
@@ -64,32 +60,31 @@ public class BannerServlet extends HttpServlet {
         String id = request.getParameter("id");
         String titulo = request.getParameter("titulo");
         boolean activo = "on".equals(request.getParameter("activo"));
+        String imagenAnterior = request.getParameter("imagenAnterior");
 
-        // 📂 Guardar archivo en carpeta uploads/
         Part filePart = request.getPart("imagen");
-        String fileName = null;
+        String imagenUrl = imagenAnterior; // por defecto se conserva la anterior
 
+        // ✅ Si el usuario sube una nueva imagen → súbela a GitHub
         if (filePart != null && filePart.getSize() > 0) {
-            fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-
-            String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) uploadDir.mkdir();
-
-            filePart.write(uploadPath + File.separator + fileName);
+            try {
+                imagenUrl = GitHubUploader.subirImagen(filePart);  
+            } catch (Exception e) {
+                e.printStackTrace();
+                request.setAttribute("mensaje", "❌ Error subiendo la imagen a GitHub");
+                request.getRequestDispatcher("banners.jsp").forward(request, response);
+                return;
+            }
         }
 
+        // Crear objeto Banner
         Banner b = new Banner();
         b.setTitulo(titulo);
         b.setActivo(activo);
-
-        if (fileName != null) {
-            b.setImagen(fileName);
-        } else {
-            b.setImagen(request.getParameter("imagenAnterior"));
-        }
+        b.setImagen(imagenUrl); // 🔥 ahora guarda la URL completa de GitHub
 
         boolean ok;
+
         if (id == null || id.isEmpty()) {
             ok = dao.registrar(b);
         } else {
@@ -100,14 +95,13 @@ public class BannerServlet extends HttpServlet {
         if (ok) {
             response.sendRedirect("BannerServlet?accion=listar");
         } else {
-            request.setAttribute("mensaje", "Error al guardar el banner, revisar consola");
+            request.setAttribute("mensaje", "❌ Error al guardar el banner en la BD");
             request.getRequestDispatcher("banners.jsp").forward(request, response);
         }
 
-        // 🔍 Log de depuración
         System.out.println("==== BannerServlet POST ====");
         System.out.println("Título: " + titulo);
         System.out.println("Activo: " + activo);
-        System.out.println("Archivo enviado: " + (filePart != null ? filePart.getSubmittedFileName() : "null"));
+        System.out.println("Imagen final guardada: " + imagenUrl);
     }
 }
