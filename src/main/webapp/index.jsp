@@ -78,7 +78,8 @@
                int index = 0;
                for (Banner b : banners) { %>
                    <div class="carousel-item <%= (index == 0 ? "active" : "") %>">
-                       <img src="uploads/<%= b.getImagen() %>" class="d-block w-100" alt="<%= b.getTitulo() %>">
+                       <!-- 🔥 aquí el cambio: quitar "uploads/" -->
+                       <img src="<%= b.getImagen() %>" class="d-block w-100" alt="<%= b.getTitulo() %>">
                        <div class="carousel-caption d-none d-md-block">
                            <h5><%= b.getTitulo() %></h5>
                        </div>
@@ -99,6 +100,8 @@
     <a class="carousel-control-next" href="#slider" role="button" data-slide="next">
         <span class="carousel-control-next-icon"></span>
     </a>
+</div>
+
 
     <!-- 🔹 FORMULARIO SUPERPUESTO -->
     <div class="form-overlay">
