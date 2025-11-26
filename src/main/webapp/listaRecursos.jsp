@@ -106,9 +106,32 @@
                   <tr>
                     <td>${r.id}</td>
                     <td>
-                      <img src="${pageContext.request.contextPath}/${r.imagen != null ? r.imagen : 'img/default-space.jpg'}"
-                           alt="Imagen de ${r.nombre}" width="70" height="50" class="rounded">
-                    </td>
+  <c:choose>
+    <!-- Si hay imagen -->
+    <c:when test="${not empty r.imagen}">
+      <c:choose>
+        <!-- Si es URL completa (GitHub u otra) -->
+        <c:when test="${fn:startsWith(r.imagen, 'http')}">
+          <img src="${r.imagen}"
+               alt="Imagen de ${r.nombre}" width="70" height="50" class="rounded">
+        </c:when>
+
+        <!-- Si es ruta interna del proyecto (compatibilidad con lo viejo) -->
+        <c:otherwise>
+          <img src="${pageContext.request.contextPath}/${r.imagen}"
+               alt="Imagen de ${r.nombre}" width="70" height="50" class="rounded">
+        </c:otherwise>
+      </c:choose>
+    </c:when>
+
+    <!-- Si NO hay imagen, usar la por defecto -->
+    <c:otherwise>
+      <img src="${pageContext.request.contextPath}/img/default-space.jpg"
+           alt="Imagen de ${r.nombre}" width="70" height="50" class="rounded">
+    </c:otherwise>
+  </c:choose>
+</td>
+
                     <td>${r.nombre}</td>
                     <td>${r.tipo}</td>
                     <td>
