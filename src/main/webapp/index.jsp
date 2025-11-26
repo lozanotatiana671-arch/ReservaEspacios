@@ -100,7 +100,6 @@
     <a class="carousel-control-next" href="#slider" role="button" data-slide="next">
         <span class="carousel-control-next-icon"></span>
     </a>
-</div>
 
 
     <!-- 🔹 FORMULARIO SUPERPUESTO -->
