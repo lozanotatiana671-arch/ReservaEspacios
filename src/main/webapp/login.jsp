@@ -69,7 +69,7 @@
                     for (Banner b : banners) {
             %>
                         <div class="carousel-item <%= (index == 0 ? "active" : "") %>">
-                            <img src="uploads/<%= b.getImagen() %>" class="d-block w-100" alt="<%= b.getTitulo() %>">
+                             <img src="<%= b.getImagen() %>" class="d-block w-100" alt="<%= b.getTitulo() %>">
                             <div class="carousel-caption d-none d-md-block">
                                 <h5><%= b.getTitulo() %></h5>
                             </div>
