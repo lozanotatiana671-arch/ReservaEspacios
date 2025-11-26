@@ -71,9 +71,9 @@
 
 <!-- Imagen del espacio -->
 <div class="space-image-container">
-    <img src="<%= recurso.getImagen().startsWith(\"http\") 
-            ? recurso.getImagen() 
-            : request.getContextPath() + \"/\" + recurso.getImagen() %>" 
+   <img src="<%= recurso.getImagen().startsWith("http")
+        ? recurso.getImagen()
+        : request.getContextPath() + "/" + recurso.getImagen() %>"
      alt="Imagen del espacio" class="space-image">
 
 </div>
