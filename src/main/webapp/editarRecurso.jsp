@@ -168,12 +168,27 @@
               <div class="col-md-4">
                 <div class="form-group">
                   <label>Imagen actual</label><br>
-                  <% if (r.getImagen() != null && !r.getImagen().isEmpty()) { %>
-                    <img src="<%= request.getContextPath() + "/" + r.getImagen() %>" 
-                         alt="Imagen recurso" style="max-width:150px; border-radius:8px;">
-                  <% } else { %>
-                    <p class="text-muted">No hay imagen cargada</p>
-                  <% } %>
+                 <% 
+    String imagen = r.getImagen();
+    boolean esURL = (imagen != null && (imagen.startsWith("http://") || imagen.startsWith("https://")));
+%>
+
+<% if (imagen != null && !imagen.isEmpty()) { %>
+
+    <% if (esURL) { %>
+        <!-- Imagen guardada en GitHub (URL absoluta) -->
+        <img src="<%= imagen %>" 
+             alt="Imagen recurso" style="max-width:150px; border-radius:8px;">
+    <% } else { %>
+        <!-- Imagen guardada local en uploads/ -->
+        <img src="<%= request.getContextPath() + "/" + imagen %>"
+             alt="Imagen recurso" style="max-width:150px; border-radius:8px;">
+    <% } %>
+
+<% } else { %>
+    <p class="text-muted">No hay imagen cargada</p>
+<% } %>
+
 
                   <div class="mt-2">
                     <label for="imagen">Cambiar imagen (opcional)</label>
