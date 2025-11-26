@@ -310,9 +310,12 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="carousel-item <%= (i == 0 ? "active" : "") %>">
             <div class="space-card mx-auto" style="max-width: 380px;">
               <div class="space-img-container position-relative">
-                 <img src="<%= (r.getImagen()!=null&&!r.getImagen().isEmpty())?
-                request.getContextPath()+"/"+r.getImagen():request.getContextPath()+"/img/default-space.jpg" %>"
-               alt="Imagen de <%= r.getNombre() %>" class="space-img">
+                 <img src="<%= (r.getImagen()!=null && !r.getImagen().isEmpty()) 
+              ? r.getImagen() 
+              : request.getContextPath() + "/img/default-space.jpg" %>"
+     alt="Imagen de <%= r.getNombre() %>" 
+     class="space-img">
+
           <div class="availability-badge <%= r.isDisponible()?"available":"unavailable" %>">
             <%= r.isDisponible() ? "Disponible" : ("EN_MANTENIMIENTO".equalsIgnoreCase(r.getEstado()) ? "En Mantenimiento" : "No Disponible") %>
 
@@ -417,8 +420,9 @@ document.addEventListener("DOMContentLoaded", function() {
     <div class="col-md-4 mb-4">
       <div class="space-card shadow">
         <div class="space-img-container position-relative">
-          <img src="<%= (r.getImagen()!=null&&!r.getImagen().isEmpty())?
-                request.getContextPath()+"/"+r.getImagen():request.getContextPath()+"/img/default-space.jpg" %>"
+          <img src="<%= (r.getImagen()!=null && !r.getImagen().isEmpty()) 
+              ? r.getImagen() 
+              : request.getContextPath() + "/img/default-space.jpg" %>"
                alt="Imagen de <%= r.getNombre() %>" class="space-img">
           <div class="availability-badge <%= r.isDisponible()?"available":"unavailable" %>">
             <%= r.isDisponible() ? "Disponible" : ("EN_MANTENIMIENTO".equalsIgnoreCase(r.getEstado()) ? "En Mantenimiento" : "No Disponible") %>
