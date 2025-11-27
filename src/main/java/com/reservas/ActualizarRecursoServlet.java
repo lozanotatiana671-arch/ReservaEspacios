@@ -17,7 +17,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 @WebServlet("/ActualizarRecursoServlet")
-@MultipartConfig // Necesario para manejar archivos en formularios con imágenes
+@MultipartConfig
 public class ActualizarRecursoServlet extends HttpServlet {
 
     @Override
@@ -26,20 +26,19 @@ public class ActualizarRecursoServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        // Crear objeto Recurso
         Recurso r = new Recurso();
 
-        // ✅ ID
+        // ID
         r.setId(Integer.parseInt(request.getParameter("id")));
 
-        // ✅ Campos de texto
+        // Campos texto
         r.setNombre(request.getParameter("nombre"));
         r.setDescripcion(request.getParameter("descripcion"));
         r.setTipo(request.getParameter("tipo"));
         r.setEstado(request.getParameter("estado"));
         r.setUbicacion(request.getParameter("ubicacion"));
 
-        // ✅ Capacidad
+        // Capacidad
         try {
             String capacidadParam = request.getParameter("capacidad");
             r.setCapacidad(capacidadParam != null && !capacidadParam.isEmpty()
@@ -49,7 +48,7 @@ public class ActualizarRecursoServlet extends HttpServlet {
             r.setCapacidad(0);
         }
 
-        // ✅ Tarifa
+        // Tarifa
         try {
             String tarifaParam = request.getParameter("tarifa");
             r.setTarifa(tarifaParam != null && !tarifaParam.isEmpty()
@@ -59,22 +58,22 @@ public class ActualizarRecursoServlet extends HttpServlet {
             r.setTarifa(0.0);
         }
 
-        // ✅ Disponible (checkbox)
+        // Disponible
         r.setDisponible(request.getParameter("disponible") != null);
 
-        // ✅ Imagen
-        String imagenActual = request.getParameter("imagenActual"); // viene oculta en el form
-        Part filePart = request.getPart("imagen"); // nuevo archivo (si se sube)
+        // Imagen
+        String imagenActual = request.getParameter("imagenActual"); // viene del input hidden
+        Part filePart = request.getPart("imagen"); // nuevo archivo, si lo suben
 
         String imagenURL = imagenActual; // por defecto, conservar la anterior
 
         if (filePart != null && filePart.getSize() > 0) {
-            // 👉 Si se sube una nueva imagen, la mandamos a GitHub
+            // Se sube nueva imagen → GitHub
             try {
                 imagenURL = subirImagenAGitHub(filePart);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                // Si falla, usamos la anterior o una por defecto
+                // Si falla, usamos la anterior o default
                 if (imagenActual != null && !imagenActual.isEmpty()) {
                     imagenURL = imagenActual;
                 } else {
@@ -82,7 +81,7 @@ public class ActualizarRecursoServlet extends HttpServlet {
                 }
             }
         } else {
-            // Si no se sube nueva imagen:
+            // No se sube nueva
             if (imagenURL == null || imagenURL.isEmpty()) {
                 imagenURL = "img/default-space.jpg";
             }
@@ -90,20 +89,17 @@ public class ActualizarRecursoServlet extends HttpServlet {
 
         r.setImagen(imagenURL);
 
-        // ✅ Guardar en base de datos
+        // Guardar en BD
         try {
             RecursoDAO.actualizar(r);
-            response.sendRedirect("ListaRecursosServlet?updated=true");
+            response.sendRedirect("ListaRecursosServlet?action=listar&updated=true");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new ServletException("❌ Error al actualizar recurso", e);
         }
     }
 
-    /**
-     * 🔵 SUBIR ARCHIVO A GITHUB Y RETORNAR download_url
-     *   (misma lógica que en InsertarRecursoServlet)
-     */
+    // ==== Igual que en InsertarRecursoServlet ====
     private String subirImagenAGitHub(Part filePart) throws Exception {
 
         String fileName = filePart.getSubmittedFileName();
@@ -125,17 +121,16 @@ public class ActualizarRecursoServlet extends HttpServlet {
         String token = System.getenv("GITHUB_TOKEN");
         String owner = "lozanotatiana671-arch";
         String repo = "ReservaEspacios";
-        String branch = "master";
-        String folder = "espacios";
+        String branch = "master";   // ⚠️ Asegúrate que tu rama se llame así
+        String folder = "espacios"; // Carpeta dentro del repo
 
         if (token == null) {
             throw new Exception("Falta variable GITHUB_TOKEN");
         }
 
-        String apiUrl =
-                "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + folder + "/" + finalName;
+        String apiUrl = "https://api.github.com/repos/" + owner + "/" + repo
+                + "/contents/" + folder + "/" + finalName;
 
-        // Crear body JSON
         JsonObject json = new JsonObject();
         json.addProperty("message", "Actualización de imagen de recurso");
         json.addProperty("content", base64);
@@ -143,7 +138,6 @@ public class ActualizarRecursoServlet extends HttpServlet {
 
         String body = new Gson().toJson(json);
 
-        // Llamado a GitHub
         URL url = new URL(apiUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("PUT");
@@ -160,7 +154,6 @@ public class ActualizarRecursoServlet extends HttpServlet {
             throw new RuntimeException("GitHub API error: " + conn.getResponseCode());
         }
 
-        // Leer respuesta
         String jsonResponse = new String(conn.getInputStream().readAllBytes());
         JsonObject resp = new Gson().fromJson(jsonResponse, JsonObject.class);
 
